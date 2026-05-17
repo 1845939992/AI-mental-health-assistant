@@ -39,6 +39,29 @@ const backendRoutes = [{
       }
     },
   ]
+},
+{
+  path: '/auth',
+  component: () => import('@/components/AuthLayout.vue'),
+  children: [
+    {
+      path: 'login',
+      component: () => import('@/views/login.vue'),
+      meta:{
+        title:'登录',
+        icon:'Login'
+      }
+    },
+    {
+      path: 'register',
+      component: () => import('@/views/register.vue'),
+      meta:{
+        title:'注册',
+        icon:'User'
+      }
+    },
+  ]
+
 }]
 
 const router = createRouter({

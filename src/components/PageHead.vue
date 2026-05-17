@@ -23,6 +23,7 @@ const props = defineProps({
   padding: 0 15px;
   background: white;
   border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
 }
 .page-title {
   font-size: 24px;

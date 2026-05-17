@@ -1,12 +1,14 @@
  <template>
- <el-aside width="264px">
+ <el-aside :width="isCollapse ? '64px' : '264px'">
  <el-menu
+        :collapse="isCollapse"
+        :collapse-transition="false"
         default-active="2"
         class="menu-style"
       >
       <div class="brand">
         <el-image :src="logoUrl" alt="logo" class="logo"/>
-        <div class="info-card">
+        <div class="info-card" v-show="!isCollapse">
           <h1 class="brand-title">心理健康AI助手</h1>
           <p class="brand-subtitle">管理后台</p>
         </div>
@@ -21,10 +23,14 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useAdminStore } from '@/stores/admin'
+import { computed } from 'vue'// 计算属性
 
 const router = useRouter()
+const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 
- const logoUrl = new URL('../assets/logo.png', import.meta.url).href
+const adminStore = useAdminStore()
+const isCollapse = computed(() => adminStore.isCollapse)// 计算属性，监听adminStore.isCollapse变化
 
 const selectMenu = (path: string) => {
 const currentRouter = router.options.routes[0]

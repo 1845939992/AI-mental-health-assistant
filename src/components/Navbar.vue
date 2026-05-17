@@ -2,7 +2,7 @@
 <div class="navbar" >
 <div class="flex-box">
     <el-button>
-      <el-icon><Expand /></el-icon>
+      <el-icon @click="handleCollapse"><Expand /></el-icon>
     </el-button>
 <p class="page-title">导航栏</p>
 </div>
@@ -17,7 +17,6 @@
     <el-button>
       <el-dropdown-menu>
         <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-        <el-dropdown-item command="profile">个人中心</el-dropdown-item>
       </el-dropdown-menu>
     </el-button>
   </template>
@@ -29,6 +28,9 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useAdminStore } from '@/stores/admin'
+import { computed } from 'vue'// 计算属性
+const adminStore = useAdminStore()
 
 const router = useRouter()
 
@@ -36,6 +38,11 @@ const handleCommand = (command: string) => {
   if (command === 'logout') {
 
 }
+}
+
+
+const handleCollapse = () => {
+  adminStore.toCollapse()
 }
 </script>
 

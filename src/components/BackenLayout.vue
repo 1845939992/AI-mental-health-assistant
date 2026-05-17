@@ -29,7 +29,7 @@ import Navbar from '@/components/Navbar.vue'
   }
 .main-container {
   height: 100%;
-  background-color: #e1e4e7;
+  background-color: #efeff0;
   .content-container {
     padding: 15px;// 内容区域内边距为15px
     background-color: #fff;
