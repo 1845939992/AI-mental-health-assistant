@@ -26,7 +26,7 @@
 </template>
 
 
-<script setup lang="ts">
+<script setup>
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
 import { computed } from 'vue'// 计算属性
@@ -34,7 +34,7 @@ const adminStore = useAdminStore()
 
 const router = useRouter()
 
-const handleCommand = (command: string) => {
+const handleCommand = (command) => {
   if (command === 'logout') {
 
 }

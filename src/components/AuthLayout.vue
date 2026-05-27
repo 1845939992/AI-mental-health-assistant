@@ -15,7 +15,7 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
+<script setup>
 const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 
 </script>

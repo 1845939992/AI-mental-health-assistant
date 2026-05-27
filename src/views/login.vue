@@ -18,7 +18,7 @@
     <el-form-item label="密码" prop="password">
       <el-input v-model="formData.password" placeholder="请输入密码" size="large" type="password" show-password />
     </el-form-item>
-      <el-button class="btn" size="large" type="primary" @click="submitForm(ruleFormRef)">登录</el-button>
+      <el-button class="btn" size="large" type="primary" @click="submitForm">登录</el-button>
   </el-form>
   <div class="footer">
     <p>还没有账号？<router-link to="/auth/register">注册</router-link></p>
@@ -26,9 +26,13 @@
 </div>
 </div>
 </template>
-<script setup lang="ts">
+<script setup>
 import { ArrowLeft, Back} from '@element-plus/icons-vue'
+import { login } from '@/api/asmin'
+import { ElMessage } from 'element-plus'
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const formData = reactive({
   username: '',
   password: ''
@@ -47,13 +51,33 @@ const handleBackHome = () => {
 
 }
 //登录
-const submitForm = async (formRef: any) => {
-  if (formRef) return
-  await formRef.value.validate((valid: boolean, fields: any) => {
+const submitForm = async () => {
+  if (!ruleFormRef) return
+  await ruleFormRef.value.validate((valid, fields) => {
     if (valid) {
-      console.log('登录成功')
-    } else {
-      console.log('登录失败')
+      login(formData).then((data) => {
+           if(!data.token){
+             //登录失败
+           return console.error('登录失败')
+           }
+           //登录成功,保存token和用户信息到localStorage,跳转到首页
+           else {
+           //存储登录信息
+           localStorage.setItem('token', data.token)
+           //存储用户信息
+           localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
+           //根据用户角色决定跳转的路径
+           if(data.userInfo.userType === 2){
+             router.push('/back/dashboard')
+           }
+           else{
+             router.push('/back/dashboard/knowledge')
+           }
+           }
+      }).catch((error) => {
+        console.error('登录请求失败', error)
+        ElMessage.error('登录失败，请检查用户名或密码')
+      })
     }
   })  
 }

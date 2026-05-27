@@ -8,7 +8,7 @@
         :model-value="formData[item.prop] ?? ''"
         :is="isComp(item.comp)"
         :placeholder="item.placeholder"
-        @update:model-value="(val: any) => formData[item.prop] = val"
+        @update:model-value="(val) => formData[item.prop] = val"
       >
         <template v-if="item.comp === 'select'">
           <el-option label="全部" value=""></el-option>
@@ -27,27 +27,18 @@
     </el-row>
   </el-form>
 </template>
-<script setup lang="ts">
+<script setup>
 import { computed, reactive, ref } from 'vue'
 
 const ruleFormRef = ref()
-const formData = reactive<Record<string, any>>({})
+const formData = reactive({})
 
-interface FormItem {
-  prop: string
-  label: string
-  comp: string
-  options?: {
-    label: string
-    value: string
-  }[]
-  placeholder?: string
-  col?: Record<string, number>
-}
-
-const props = defineProps<{
-  formItem: FormItem[]
-}>()
+const props = defineProps({
+  formItem: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const formItemAttr = computed(() => {
   const {formItem} = props
@@ -57,24 +48,19 @@ const formItemAttr = computed(() => {
 return formItem
 })
 
-interface Emits {
-  (e: 'search', data: Record<string, any>): void
-  (e: 'reset'): void
-}
-
-const emit = defineEmits<Emits>()
+const emit = defineEmits(['search', 'reset'])
 
 const handleSearch = () => {
   emit('search', { ...formData })
 }
 
-const handleReset = (formEl: any) => {
+const handleReset = (formEl) => {
   if (formEl) {
     formEl.resetFields()
   }
 }
 
-const isComp = (comp: string) => {
+const isComp = (comp) => {
   return {
     input: 'el-input',
     select: 'el-select',

@@ -21,7 +21,7 @@
  </el-aside>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { useRouter } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
 import { computed } from 'vue'// 计算属性
@@ -32,7 +32,7 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 const adminStore = useAdminStore()
 const isCollapse = computed(() => adminStore.isCollapse)// 计算属性，监听adminStore.isCollapse变化
 
-const selectMenu = (path: string) => {
+const selectMenu = (path) => {
 const currentRouter = router.options.routes[0]
 router.push(`${currentRouter?.path ?? ''}/${path}`)
 }
