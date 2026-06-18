@@ -32,7 +32,7 @@ import { computed, reactive, ref } from 'vue'
 
 const ruleFormRef = ref()
 const formData = reactive({})
-
+const emit = defineEmits(['search', 'reset'])
 const props = defineProps({
   formItem: {
     type: Array,
@@ -47,8 +47,6 @@ const formItemAttr = computed(() => {
 })
 return formItem
 })
-
-const emit = defineEmits(['search', 'reset'])
 
 const handleSearch = () => {
   emit('search', { ...formData })
