@@ -44,3 +44,23 @@ export function changeArticleStatus(id, status) {
 
 **修复**：`changeArticleStatus(id, { status })` — 解构的本质是 形参和实参要匹配 ：你传对象 {status: 1} ，形参就要写成 { status } 来解构它；你传裸值 1 ，形参就写成普通变量 status 。两边对不上就会出 bug。
 
+---
+
+## 4. AI咨询消息列表头像和内容不渲染：后端返回数字，模板用字符串比较
+
+**位置**：`ai-cunsulations.vue#L94-L119`
+
+**根因**：后端返回 `senderType` 为 **数字** `1`/`2`，模板中用 **字符串** `'1'`/`'2'` 比较（如 `message.senderType === '1'`），所有 `v-if`/`:class` 条件判断全部为 false → 头像和消息内容均不渲染。
+
+```js
+// 后端实际返回
+{ senderType: 1, content: "dsa da" }   // 数字
+
+// 模板中错误写法
+message.senderType === '1'    // 1 === '1' → false
+```
+
+**教训**：对接 API 时必须先通过 `console.log(res)` 确认返回字段的**数据类型**（number vs string），再写模板条件判断。不要假设字段类型。
+
+**修复**：将模板中全部 `'1'`/`'2'` 改为 `1`/`2`（共 7 处）。
+

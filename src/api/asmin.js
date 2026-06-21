@@ -60,3 +60,14 @@ export function getConsulationDetail(id) {
 export function getEmotionDiaryPage(params) {
   return service.get('/emotion-diary/admin/page', { params })
 }
+
+//获取综合数据分析
+export function getAnalyticsOverview() {
+  return service.get(`/data-analytics/overview`)
+}
+
+// 退出登录
+export function logout() {
+  return service.post('/user/logout')
+}
+

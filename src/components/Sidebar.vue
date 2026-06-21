@@ -3,7 +3,7 @@
  <el-menu
         :collapse="isCollapse"
         :collapse-transition="false"
-        default-active="2"
+        :default-active="activeMenu"
         class="menu-style"
       >
       <div class="brand">
@@ -22,15 +22,17 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
 import { computed } from 'vue'// 计算属性
 
 const router = useRouter()
+const route = useRoute()
 const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 
 const adminStore = useAdminStore()
 const isCollapse = computed(() => adminStore.isCollapse)// 计算属性，监听adminStore.isCollapse变化
+const activeMenu = computed(() => route.path.split('/').pop())// 从当前路由提取子路径，与菜单 index 匹配
 
 const selectMenu = (path) => {
 const currentRouter = router.options.routes[0]
