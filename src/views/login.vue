@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <div class="title">
-      <div class="back-home">
-        <el-icon class="icon" @click="handleBackHome">
+      <div class="back-home" @click="handleBackHome">
+        <el-icon class="icon">
           <Back />
         </el-icon>
         <span>返回首页</span>
@@ -15,12 +15,11 @@
     <div class="form-container">
       <el-form :model="formData" ref="ruleFormRef" :rules="rules" label-position="top">
         <el-form-item label="用户名或邮箱" prop="username">
-          <el-input v-model="formData.username" placeholder="请输入用户名或邮箱" size="large" 
-          @keyup.enter="focusPassword" />
+          <el-input v-model="formData.username" placeholder="请输入用户名或邮箱" size="large" @keyup.enter="focusPassword" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input ref="passwordInputRef" v-model="formData.password" placeholder="请输入密码" 
-          size="large" @keyup.enter="submitForm" type="password" show-password />
+          <el-input ref="passwordInputRef" v-model="formData.password" placeholder="请输入密码" size="large"
+            @keyup.enter="submitForm" type="password" show-password />
         </el-form-item>
         <el-button class="btn" size="large" type="primary" @click="submitForm">登录</el-button>
       </el-form>
@@ -58,7 +57,7 @@ const focusPassword = () => {
 }
 
 const handleBackHome = () => {
-
+  router.push('/home')
 }
 //登录
 const submitForm = async () => {
@@ -104,6 +103,21 @@ const submitForm = async () => {
     .back-home {
       margin-bottom: 60px;
       text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: #6b7280;
+      transition: color 0.2s, transform 0.2s;
+
+      &:hover {
+        color: #4A90E2;
+        transform: translateX(-3px);
+      }
+
+      &:active {
+        transform: translateX(-3px) scale(0.95);
+      }
     }
 
     .title-text {

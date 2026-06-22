@@ -104,6 +104,14 @@ const frontendRoutes = [
           icon: 'ChatLineRound'
         }
       },
+      {
+        path: 'f-knowledge/article/:id',
+        component: () => import('@/views/articleDetail.vue'),
+        meta: {
+          title: '知识库文章详情',
+          icon: 'ChatLineRound'
+        }
+      },
     ]
   },
 ]

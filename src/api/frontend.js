@@ -29,3 +29,18 @@ export function getSessionMessages(sessionId) {
 export function getSessionEmotion(sessionId) {
   return service.get(`/psychological-chat/session/${sessionId}/emotion`)
 }
+
+// 创建或更新情绪日记
+export function addEmotionDiary(data) {
+  return service.post('/emotion-diary', data)
+}
+
+// 获取文章分页列表
+export function getKnowledgelist(params) {
+  return service.get('/knowledge/article/page', { params })
+}
+
+// 获取文章详情
+export function getKnowledgeDetail(id) {
+  return service.get(`/knowledge/article/${id}`)
+}
