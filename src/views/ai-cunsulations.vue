@@ -128,7 +128,7 @@
         </div>
       </div>
       <!-- 会话消息  -->
-      <div class="chat-messages">
+      <div class="chat-messages" ref="chatMessagesRef">
         <!-- 欢迎消息 -->
         <div v-if="messages.length === 0" class="message-item ai-message">
           <div class="message-avatar">
@@ -199,7 +199,7 @@
 </template>
 <script setup>
 import { ChatRound, DeleteFilled, Plus, Promotion } from '@element-plus/icons-vue'
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, watch, nextTick, onUnmounted } from 'vue'
 import { startSession, getSessionslist, deleteSession, getSessionMessages, getSessionEmotion } from '@/api/frontend'
 import { ElMessage } from 'element-plus'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
@@ -228,6 +228,70 @@ const currentEmotion = ref({
   suggestion: '您当前的情绪状态为正常，无需关注。 ',//小建议
   improvementSuggestions: [],//小建议
 })
+
+// ==================== 自动滚动相关 ====================
+const chatMessagesRef = ref(null) //聊天消息容器DOM引用
+const isUserScrollingUp = ref(false) //用户是否正在向上滚动查看历史消息
+let scrollLockTimer = null //定时器 ID,滚动锁定定时器，防止频繁触发
+let lastScrollTime = 0 //上次滚动时间戳，用于节流
+
+//判断当前是否已滚动到底部（允许一定误差阈值）
+const isAtBottom = (threshold = 40) => {
+  const el = chatMessagesRef.value
+  if (!el) return true
+  return el.scrollHeight - el.scrollTop - el.clientHeight < threshold
+}
+
+//平滑滚动到底部
+const scrollToBottom = () => {
+  const el = chatMessagesRef.value
+  if (!el) return
+  //使用requestAnimationFrame确保在下一帧渲染后执行，避免跳动
+  requestAnimationFrame(() => {
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: 'smooth' //平滑滚动效果
+    })
+  })
+}
+
+//节流版滚动检测：监听用户手动滚动行为
+const handleUserScroll = () => {
+  const now = Date.now()
+  //节流：100ms内只执行一次，避免高频触发导致卡顿
+  if (now - lastScrollTime < 100) return
+  lastScrollTime = now
+  //如果用户向上滚动且不在底部，标记为手动查看历史
+  if (!isAtBottom()) {
+    isUserScrollingUp.value = true
+    //清除旧的定时器，重新设置3秒锁定
+    if (scrollLockTimer) clearTimeout(scrollLockTimer)
+    scrollLockTimer = setTimeout(() => {
+      isUserScrollingUp.value = false //3秒无操作后恢复自动滚动
+    }, 3000)
+  } else {
+    //用户滚回底部了，立即恢复自动滚动
+    isUserScrollingUp.value = false
+    if (scrollLockTimer) {
+      clearTimeout(scrollLockTimer)
+      scrollLockTimer = null
+    }
+  }
+}
+
+//监听消息变化和AI输入状态，自动滚动到底部
+watch(
+  [messages, isAItyping],
+  () => {
+    //如果用户正在查看历史消息，不强制滚动
+    if (isUserScrollingUp.value) return
+    //等待DOM更新完成后再滚动，确保内容已渲染
+    nextTick(() => {
+      scrollToBottom()
+    })
+  },
+  { deep: true } //深度监听，捕获message.content的流式更新
+)
 
 //关于AI流式对话功能的实现：
 // 各种变量和函数的功能已有注释，不重复说明
@@ -492,6 +556,18 @@ const formatMessageContent = (content) => {
 onMounted(() => {
   getSessionPage()
   createNewSession()
+  //绑定用户手动滚动检测事件
+  nextTick(() => {
+    const el = chatMessagesRef.value
+    if (el) el.addEventListener('scroll', handleUserScroll, { passive: true })
+  })
+})
+
+//组件卸载时清理定时器和事件监听，防止内存泄漏
+onUnmounted(() => {
+  if (scrollLockTimer) clearTimeout(scrollLockTimer)
+  const el = chatMessagesRef.value
+  if (el) el.removeEventListener('scroll', handleUserScroll)
 })
 
 </script>
@@ -614,6 +690,7 @@ onMounted(() => {
 
           .session-info {
             flex: 1;
+            padding-right: 36px;
 
             .session-title {
               font-weight: 500;
@@ -663,8 +740,9 @@ onMounted(() => {
 
             .session-actions {
               position: absolute;
-              top: 10px;
-              right: 12px;
+              top: 15%;
+              right: -2px;
+              transform: translateY(-50%);
             }
           }
         }
@@ -1054,9 +1132,9 @@ onMounted(() => {
         .el-button {
           width: 40px;
           height: 40px;
-          border-radius: 50%;
+          border-radius: 50%; // 圆角
           background: rgba(255, 255, 255, 0.2);
-          border: 1.5px solid rgba(255, 255, 255, 0.35);
+          border: 1.5px solid rgba(255, 255, 255, 0.35); // 边框
           color: #fff;
           font-size: 18px;
           backdrop-filter: blur(6px);
@@ -1070,7 +1148,8 @@ onMounted(() => {
           }
 
           &:active {
-            transform: rotate(90deg) scale(0.92);
+            transform: rotate(90deg) scale(0.92); // 点击时旋转并缩小到 92%
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
         }
       }

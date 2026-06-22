@@ -1,6 +1,12 @@
 <template>
   <div class="register-container">
     <div class="register-content">
+      <div class="back-home" @click="handleBackHome">
+        <el-icon class="icon">
+          <Back />
+        </el-icon>
+        <span>返回首页</span>
+      </div>
       <div class="register-title">
         <h2>创建您的账号</h2>
         <p>请填写注册信息</p>
@@ -36,10 +42,15 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { Back } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+
+const handleBackHome = () => {
+  router.push('/home')
+}
 
 // 注册表单引用
 const submitFormRef = ref(null)
@@ -85,4 +96,51 @@ const submitForm = async (formEl) => {
   })
 }
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.register-container {
+  width: 384px;
+
+  .register-content {
+    .back-home {
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: #6b7280;
+      transition: color 0.2s, transform 0.2s;
+
+      &:hover {
+        color: #4A90E2;
+        transform: translateX(-3px);
+      }
+
+      &:active {
+        transform: translateX(-3px) scale(0.95);
+      }
+    }
+
+    .register-title {
+      text-align: center;
+
+      h2 {
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 18px;
+        color: #6b7280;
+      }
+    }
+  }
+
+  .register-form {
+    margin-top: 40px;
+
+    .register-btn {
+      width: 100%;
+    }
+  }
+}
+</style>

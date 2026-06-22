@@ -15,8 +15,10 @@
           每个深夜，每个焦虑的时刻，我们都在这里。不必独自承受，让心与心的连接温暖您的每一天
         </p>
         <div class="hero-actions">
-          <el-button size="large" type="primary" class="hero-btn hero-btn--primary">开始倾诉，获得陪伴</el-button>
-          <el-button size="large" class="hero-btn hero-btn--ghost">记录心情，释放情感</el-button>
+          <el-button size="large" type="primary" class="hero-btn hero-btn--primary"
+            @click="router.push('/ai-cunsulations')">开始倾诉，获得陪伴</el-button>
+          <el-button size="large" class="hero-btn hero-btn--ghost"
+            @click="router.push('/emotion-diary')">记录心情，释放情感</el-button>
         </div>
       </div>
     </div>
@@ -24,7 +26,9 @@
 </template>
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const logoUrl = ref(new URL('../assets/logo.png', import.meta.url).href)
 
 </script>
@@ -36,24 +40,41 @@ const logoUrl = ref(new URL('../assets/logo.png', import.meta.url).href)
 // ============================================================
 
 // -- 设计令牌 -------------------------------------------------
-$color-primary:   #4A90E2;
-$color-text:      #1F2937;
-$color-muted:     #6B7280;
-$color-accent:    #6366F1;
-$color-rose:      #EC4899;
-$max-width:       1120px;
-$transition:      0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$color-primary: #4A90E2;
+$color-text: #1F2937;
+$color-muted: #6B7280;
+$color-accent: #6366F1;
+$color-rose: #EC4899;
+$max-width: 1120px;
+$transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 // -- 入场动画 -------------------------------------------------
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes popIn {
-  0%   { opacity: 0; transform: scale(0.85); }
-  70%  { transform: scale(1.03); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  70% {
+    transform: scale(1.03);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // ============================================================
@@ -63,8 +84,8 @@ $transition:      0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 64px); // 减去导航栏高度
-  margin: -32px -20px -48px;      // 抵消父 .main-content 的 padding，白色全覆盖
+  min-height: calc(100vh - 250px); // 减去导航栏高度
+  margin: -32px -20px -48px; // 抵消父 .main-content 的 padding，白色全覆盖
   padding: 40px 32px;
   background: white;
 }
@@ -117,12 +138,10 @@ $transition:      0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 // 渐变高亮文字 — 紫→蓝→青 三色渐变 + 发光阴影
 .highlight-text {
-  background: linear-gradient(
-    135deg,
-    $color-accent 0%,
-    $color-primary 40%,
-    #06B6D4 100%
-  );
+  background: linear-gradient(135deg,
+      $color-accent 0%,
+      $color-primary 40%,
+      #06B6D4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

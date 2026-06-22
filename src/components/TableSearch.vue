@@ -37,7 +37,7 @@ const props = defineProps({
   formItem: {
     type: Array,
     default: () => []
-  }
+  },
 })
 
 const formItemAttr = computed(() => {

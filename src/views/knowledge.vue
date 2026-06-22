@@ -5,7 +5,7 @@
         <el-button type="primary" @click="handleEdit({ })" >新增</el-button>
       </template>
     </PageHead>
-    <TableSearch :formItem="formItem" @search="handleSearch" />
+    <TableSearch :formItem="formItem" @search="handleSearch"  />
     <el-table :data="tableData" style="width: 100%; margin-top: 25px;">
       <!-- 接收数据并通过#default="scope"循环给每一行 -->
     <!-- @vue-generic {User} -->
@@ -72,7 +72,9 @@ import { ElMessageBox,ElMessage } from 'element-plus'
 
 const formItem = [{label: '文章标题',prop: 'title',comp: 'input',placeholder: '请输入文章标题',
                   },
-                  {label: '文章分类',prop: 'categoryId',comp: 'select',placeholder: '请选择文章分类',
+                  {label: '文章分类',prop: 'categoryId',comp: 'select',placeholder: '请选择文章分类',options: [
+                    {label: '全部',value: ''},
+                  ]
                   },
                   {label: '文章状态',prop: 'status',comp: 'select',placeholder: '请选择文章状态',options:[
                     {label: '草稿',value: 0},
@@ -108,7 +110,6 @@ const handleChange = (val) => {
 
 // 搜索文章：后端按createdAt降序分页返回，前端再按updatedAt降序微调
 const handleSearch = async (formData) => {
-  console.log(formData)
   const params = {
     currentPage: pagination.currentPage,
     size: pagination.size,
