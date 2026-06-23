@@ -4,7 +4,7 @@
     <!-- 头部 -->
     <div class="header-section">
       <div class="header-content">
-        <el-button  circle @click="router.back()" >
+        <el-button circle @click="router.back()">
           <el-icon :size="20">
             <Back />
           </el-icon>
@@ -60,12 +60,13 @@
         </div>
 
         <!-- 封面图片 -->
-        <div v-if="article.coverImage" style="margin: 20px 0; border-radius: 8px; overflow: hidden;">
-          <el-image :src="fileBaseUrl + article.coverImage" fit="cover" style="width: 100%; max-height: 400px;" />
+        <div v-if="article.coverImage" class="cover-image-wrapper">
+          <el-image :src="fileBaseUrl + article.coverImage" :preview-src-list="[fileBaseUrl + article.coverImage]"
+            fit="contain" class="cover-image" />
         </div>
 
         <!-- 文章正文（富文本） -->
-        <div v-if="article.content" class="content-wrapper" v-html="formatContent(article.content)" ></div>
+        <div v-if="article.content" class="content-wrapper" v-html="formatContent(article.content)"></div>
 
         <!-- 文章标签 -->
         <div v-if="tags.length" class="tags-content">
@@ -104,9 +105,9 @@ const formatContent = (content) => {
   if (!content) return ''
 
   let formattedContent = content
-    .replace(/\n/g,'<br>')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
   return formattedContent
 }
 
@@ -154,6 +155,7 @@ onMounted(async () => {
   .content {
     margin: 0 auto;
     width: 980px;
+    max-width: 100%;
     padding: 20px;
 
     .diary-card {
@@ -186,6 +188,25 @@ onMounted(async () => {
         color: #111827;
         margin-top: 30px;
         margin-bottom: 10px;
+      }
+
+      .cover-image-wrapper {
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f3f4f6;
+        display: flex;
+        justify-content: center;
+
+        .cover-image {
+          width: 100%;
+          max-height: 500px;
+
+          :deep(img) {
+            object-fit: contain;
+            max-width: 100%;
+          }
+        }
       }
 
       .summary-content {

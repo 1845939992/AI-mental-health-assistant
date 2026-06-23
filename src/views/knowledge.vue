@@ -49,7 +49,7 @@
     </el-table>
     <el-pagination
       style="margin-top: 25px;"
-      layout="prev, pager, next"
+      layout="prev, pager, next, jumper"
       :total="pagination.total"
        :page-size="pagination.size" 
       @change="handleChange"
@@ -73,7 +73,10 @@ import { ElMessageBox,ElMessage } from 'element-plus'
 const formItem = [{label: '文章标题',prop: 'title',comp: 'input',placeholder: '请输入文章标题',
                   },
                   {label: '文章分类',prop: 'categoryId',comp: 'select',placeholder: '请选择文章分类',options: [
-                    {label: '全部',value: ''},
+                    {label: '人际关系',value: '4'},
+                    {label: '压力缓解',value: '3'},
+                    {label: '心理健康基础',value: '1'},
+                    {label: '情绪管理',value: '2'},
                   ]
                   },
                   {label: '文章状态',prop: 'status',comp: 'select',placeholder: '请选择文章状态',options:[

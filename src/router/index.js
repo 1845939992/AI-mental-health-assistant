@@ -138,13 +138,13 @@ router.beforeEach((to, from, next) => {
         } else {
           next('/back/dashboard')
         }
-      //前台用户
-      } else  if (userInfo.userType === 1){
-         if (to.path.startsWith('/back') || to.path.startsWith('/auth')) {
-            next('/')
-          } else {
-            next()
-          }
+        //前台用户
+      } else if (userInfo.userType === 1) {
+        if (to.path.startsWith('/back') || to.path.startsWith('/auth')) {
+          next('/')
+        } else {
+          next()
+        }
       }
     } else {
       next()

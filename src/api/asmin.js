@@ -61,6 +61,12 @@ export function getEmotionDiaryPage(params) {
   return service.get('/emotion-diary/admin/page', { params })
 }
 
+// 删除情绪日记
+export function deleteEmotionDiary(id) {
+  return service.delete(`/emotion-diary/admin/${id}`)
+}
+
+
 //获取综合数据分析
 export function getAnalyticsOverview() {
   return service.get(`/data-analytics/overview`)

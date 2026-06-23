@@ -4,17 +4,19 @@
     <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="id" label="会话ID" width="200">
         <template #default="scope">
-          <el-avatar :src="scope.row.userNickname" :size="50">{{ scope.row.userNickname ? '' : '匿' }}</el-avatar>
+          <el-avatar :src="scope.row.userNickname" :size="50">
+            {{ scope.row.userNickname ? scope.row.userNickname : '匿名用户' }}
+          </el-avatar>
         </template>
       </el-table-column>
-      <el-table-column prop="id" label="情绪日志" >
+      <el-table-column prop="id" label="情绪日志">
         <template #default="scope">
           <div class="session-title">{{ scope.row.sessionTitle }}</div>
           <div class="session-preview">{{ scope.row.lastMessageContent }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="messageCount" label="消息数" width="100" />
-      <el-table-column prop="lastMessageTime" label="最后消息时间"  width="100" />
+      <el-table-column prop="lastMessageTime" label="最后消息时间" width="100" />
       <el-table-column prop="id" label="操作" width="100">
         <template #default="scope">
           <el-button type="primary" text @click="viewSessionDetail(scope.row)">详情</el-button>
@@ -22,22 +24,15 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <el-pagination
-      style="margin-top: 25px;"
-      layout="prev, pager, next"
+    <el-pagination style="margin-top: 25px;" 
+      layout="prev, pager, next, jumper" 
       :total="pagination.total"
-      :page-size="pagination.pageSize"
-      :current-page="pagination.pageNum"
-      @current-change="handleChange"
-    />
-    <el-dialog
-      v-model="showDetailDialog"
-      title="会话详情"
-      width="70%"
-      :close-on-click-modal="false"
-    >
+      :page-size="pagination.pageSize" 
+      :current-page="pagination.pageNum" 
+      @current-change="handleChange" />
+    <el-dialog v-model="showDetailDialog" title="会话详情" width="70%" :close-on-click-modal="false">
       <div class="session-detail">
-        <div class="session-header"> 
+        <div class="session-header">
           <div class="detail-row">
             <div class="detail-label">用户：</div>
             <div class="detail-value">{{ sessionDetail.userNickname || '匿名用户' }}</div>
@@ -53,17 +48,17 @@
         </div>
         <div class="messages-container">
           <div class="messages-header">
-              <h4>对话记录</h4>
+            <h4>对话记录</h4>
           </div>
           <div class="messages-list" v-loading="loadingMessages">
-              <div v-for="msg in sessionMessages" :key="msg.id" class="message-item" 
-                   :class="msg.senderType === 1 ? 'user-message' : 'ai-message'">
-                <div class="message-header">
-                  <div class="sender">{{ msg.senderType === 1 ? '用户' : 'AI' }}</div>
-                  <div class="time">{{ msg.createdAt }}</div>
-                </div>
-                <div class="message-content">{{ msg.content }}</div>
+            <div v-for="msg in sessionMessages" :key="msg.id" class="message-item"
+              :class="msg.senderType === 1 ? 'user-message' : 'ai-message'">
+              <div class="message-header">
+                <div class="sender">{{ msg.senderType === 1 ? '用户' : 'AI' }}</div>
+                <div class="time">{{ msg.createdAt }}</div>
               </div>
+              <div class="message-content">{{ msg.content }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,6 +120,7 @@ onMounted(() => {
   font-weight: bold;
   margin-bottom: 5px;
 }
+
 .session-preview {
   font-size: 14px;
   color: #666;
@@ -147,15 +143,18 @@ onMounted(() => {
   margin-bottom: 16px;
   flex-shrink: 0;
 }
+
 .detail-row {
   display: flex;
   align-items: center;
   font-size: 14px;
 }
+
 .detail-label {
   color: #909399;
   margin-right: 4px;
 }
+
 .detail-value {
   color: #303133;
   font-weight: 500;
@@ -168,8 +167,10 @@ onMounted(() => {
   flex-direction: column;
   overflow: hidden;
 }
+
 .messages-header {
   flex-shrink: 0;
+
   h4 {
     margin: 0 0 12px 0;
     font-size: 15px;
@@ -178,6 +179,7 @@ onMounted(() => {
     border-left: 3px solid #409eff;
   }
 }
+
 .messages-list {
   flex: 1;
   overflow-y: auto;
@@ -196,15 +198,18 @@ onMounted(() => {
     align-items: center;
     gap: 10px;
     margin-bottom: 6px;
+
     .sender {
       font-size: 13px;
       font-weight: 600;
     }
+
     .time {
       font-size: 12px;
       color: #c0c4cc;
     }
   }
+
   .message-content {
     font-size: 14px;
     line-height: 1.6;
@@ -218,10 +223,15 @@ onMounted(() => {
 .user-message {
   align-self: flex-end;
   align-items: flex-end;
+
   .message-header {
     flex-direction: row-reverse;
-    .sender { color: #409eff; }
+
+    .sender {
+      color: #409eff;
+    }
   }
+
   .message-content {
     background: #409eff;
     color: #fff;
@@ -233,9 +243,13 @@ onMounted(() => {
 .ai-message {
   align-self: flex-start;
   align-items: flex-start;
+
   .message-header {
-    .sender { color: #67c23a; }
+    .sender {
+      color: #67c23a;
+    }
   }
+
   .message-content {
     background: #f0f2f5;
     color: #303133;

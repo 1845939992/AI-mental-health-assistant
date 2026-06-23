@@ -353,6 +353,17 @@ const createNewSession = () => {
   }
   currentSession.value = newSession
   messages.value = []   //清空消息列表，显示欢迎页
+  // 重置情绪花园为初始默认值
+  currentEmotion.value = {
+    primaryEmotion: '中性',
+    emotionScore: 50,
+    isNegative: false,
+    riskLevel: 0,
+    suggestion: '您当前的情绪状态为正常，无需关注。',
+    improvementSuggestions: [],
+  }
+  userMessage.value = '' // 清空输入框
+  isAItyping.value = false // 重置AI输入状态
 }
 
 // 抬起回车时发送消息

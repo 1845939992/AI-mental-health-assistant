@@ -19,7 +19,8 @@
           <span>推荐阅读</span>
         </div>
         <div class="recommend-list">
-          <div v-for="item in recommendList" :key="item.id" class="recommend-item" @click="handleRecommendClick(item.id)">
+          <div v-for="item in recommendList" :key="item.id" class="recommend-item"
+            @click="handleRecommendClick(item.id)">
             <div>{{ item.title }}</div>
             <div class="read-count">
               <el-icon :size="12">
@@ -33,7 +34,8 @@
 
       <!-- 右侧文章列表 -->
       <div class="article-list">
-        <div v-for="article in articleList" :key="article.id" class="article-item">
+        <div v-for="article in articleList" :key="article.id" class="article-item"
+          @click="handleRecommendClick(article.id)">
           <el-image :src="article.coverImage ? fileBaseUrl + article.coverImage : knowledgeUrl" fit="cover"
             style="width: 160px; height: 110px; border-radius: 8px; flex-shrink: 0;" />
           <div class="info">
@@ -73,11 +75,8 @@
 
     <!-- 分页 -->
     <div class="pagination-wrapper">
-      <el-pagination 
-      v-model:current-page="pagination.currentPage" 
-      v-model:page-size="pagination.size"
-      :total="pagination.total" layout="prev, pager, next" 
-      @current-change="handlePageChange" />
+      <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.size"
+        :total="pagination.total" layout="prev, pager, next" @current-change="handlePageChange" />
     </div>
   </div>
 </template>
@@ -135,8 +134,8 @@ const fetchArticles = async () => {
 }
 
 // 点击推荐项跳转到对应文章
-const handleRecommendClick =  (id) => {
-    router.push(`/f-knowledge/article/${id}`)
+const handleRecommendClick = (id) => {
+  router.push(`/f-knowledge/article/${id}`)
 }
 
 // 切换页码
@@ -148,7 +147,7 @@ const handlePageChange = (page) => {
 onMounted(() => {
   fetchArticles()
   getKnowledgelist(params).then(res => {
-  recommendList.value = res.records || []
+    recommendList.value = res.records || []
   })
 })
 </script>
@@ -242,6 +241,7 @@ onMounted(() => {
         padding: 15px;
         margin-bottom: 20px;
         display: flex;
+        cursor: pointer;
         transition: transform 0.2s, box-shadow 0.2s;
 
         &:hover {
