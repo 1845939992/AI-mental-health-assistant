@@ -1,7 +1,16 @@
 <template>
   <div class="consultation-container">
+    <!-- 页面初始化加载状态 -->
+    <div v-if="isLoading" class="page-loading-overlay">
+      <div class="loading-content">
+        <div class="spinner-ring"></div>
+        <div class="loading-text">正在加载您的会话...</div>
+        <div class="loading-subtext">清心AI助手准备中</div>
+      </div>
+    </div>
+
     <!-- 侧边栏 -->
-    <div class="sidebar">
+    <div class="sidebar" :class="{ 'loading': isLoading }">
       <!-- AI助手信息 -->
       <div class="ai-assistant-info">
         <div class="breathing-circle">
@@ -68,8 +77,10 @@
       <div class="session-history">
         <h4 class="section-title">会话列表</h4>
         <div class="session-list">
-          <div class="session-item" v-for="session in sessionList" :key="session.id"
-            @click="handleSessionClick(session)">
+          <div class="session-item" v-for="(session, index) in sessionList" :key="session.id"
+            @click="handleSessionClick(session)"
+            :class="{ 'active': currentSession && currentSession.sessionId === ('session_' + session.id) }"
+            :style="{ animationDelay: `${index * 0.05}s` }">
             <div class="session-info">
               <div class="session-title">
                 <span>{{ session.sessionTitle }}</span>
@@ -120,7 +131,7 @@
           </div>
         </div>
         <div class="header-right">
-          <el-button @click="createNewSession" title="新建会话">
+          <el-button @click="createNewSession" title="新建会话" class="new-session-btn">
             <el-icon>
               <Plus />
             </el-icon>
@@ -130,7 +141,7 @@
       <!-- 会话消息  -->
       <div class="chat-messages" ref="chatMessagesRef">
         <!-- 欢迎消息 -->
-        <div v-if="messages.length === 0" class="message-item ai-message">
+        <div v-if="messages.length === 0" class="message-item ai-message welcome-message">
           <div class="message-avatar">
             <el-image :src="iconUrl" alt="AI助手" fit="contain" style="width: 18px; height: 18px;" />
           </div>
@@ -188,7 +199,7 @@
             <span>已输入{{ userMessage.length }}/500</span>
           </div>
         </div>
-        <el-button type="primary" @click="sendMessage" class="send-btn">
+        <el-button type="primary" @click="sendMessage" class="send-btn" :disabled="isAItyping || !userMessage.trim()">
           <el-icon>
             <Promotion />
           </el-icon>
@@ -208,6 +219,9 @@ import { fetchEventSource } from '@microsoft/fetch-event-source'
 const iconUrl = new URL('@/assets/images/robot-fill.png', import.meta.url).href //AI助手图标
 const iconUrl1 = new URL('@/assets/images/like.png', import.meta.url).href //爱心图标
 const iconUrl2 = new URL('@/assets/images/users.png', import.meta.url).href //用户图标
+
+// 页面初始化加载状态
+const isLoading = ref(false)
 
 // 定义一个用户输入的消息变量，用于存储用户输入的消息内容
 const userMessage = ref('')
@@ -541,7 +555,7 @@ const handleSessionClick = (session) => {
 
 //获取所有会话列表
 const getSessionPage = () => {
-  getSessionslist({
+  return getSessionslist({
     pageNum: 1,
     pageSize: 10,
   }).then(res => {
@@ -564,9 +578,16 @@ const formatMessageContent = (content) => {
   return content.replace(/\n/g, '<br>')
 }
 
-onMounted(() => {
-  getSessionPage()
-  createNewSession()
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    await getSessionPage()
+    createNewSession()
+  } catch (error) {
+    ElMessage.error('会话加载失败')
+  } finally {
+    isLoading.value = false
+  }
   //绑定用户手动滚动检测事件
   nextTick(() => {
     const el = chatMessagesRef.value
@@ -590,10 +611,57 @@ onUnmounted(() => {
   gap: 20px;
   padding: 20px;
   height: calc(100vh - 64px); // 减去顶部导航栏高度，约束整体不超出视口
+  position: relative;
+  animation: page-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  .page-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(250, 251, 252, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: overlay-fade-in 0.3s ease-out;
+
+    .loading-content {
+      text-align: center;
+      animation: loading-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+      .spinner-ring {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: 4px solid rgba(139, 92, 246, 0.15);
+        border-top-color: #8b5cf6;
+        margin: 0 auto 20px;
+        animation: spinner-rotate 1s linear infinite;
+      }
+
+      .loading-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+      }
+
+      .loading-subtext {
+        font-size: 13px;
+        color: #6b7280;
+      }
+    }
+  }
 
   .sidebar {
     width: 320px;
     overflow-y: auto; // 侧边栏独立滚动
+    animation: sidebar-slide-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+
+    &.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
 
     .ai-assistant-info {
       margin-bottom: 20px;
@@ -688,10 +756,12 @@ onUnmounted(() => {
           cursor: pointer;
           transition: all 0.3s ease;
           border: 2px solid transparent;
+          animation: session-item-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 
           &:hover {
             background: #f8f9ff;
             border-color: #e6f0ff;
+            transform: translateX(4px);
           }
 
           &.active {
@@ -1097,9 +1167,12 @@ onUnmounted(() => {
     flex-direction: column;
     overflow: hidden;
     flex: 1;
+    animation: chat-slide-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 
     .chat-header {
-      background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%);
+      background: linear-gradient(90deg, #fb923c 0%, #f59e0b 40%, #f472b6 80%, #fb923c 100%);
+      background-size: 200% 100%;
+      animation: header-shimmer 8s linear infinite;
       color: white;
       padding: 20px 24px;
       display: flex;
@@ -1135,12 +1208,13 @@ onUnmounted(() => {
 
           p {
             font-size: 14px;
+            opacity: 0.95;
           }
         }
       }
 
       .header-right {
-        .el-button {
+        .new-session-btn {
           width: 40px;
           height: 40px;
           border-radius: 50%; // 圆角
@@ -1203,14 +1277,33 @@ onUnmounted(() => {
         }
 
         &.user-message {
+          flex-direction: row-reverse;
+
           .message-avatar {
             background: linear-gradient(135deg, #6b7280, #4b5563);
             box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
           }
+
+          .message-content {
+            align-items: flex-end;
+
+            .message-bubble {
+              background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+              color: white;
+              border: none;
+            }
+          }
+        }
+
+        &.welcome-message {
+          animation: welcome-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         .message-content {
           max-width: 70%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
 
           .message-bubble {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 252, 248, 0.95) 100%);
@@ -1301,11 +1394,153 @@ onUnmounted(() => {
         background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%) !important;
         border: none !important;
         box-shadow: 0 6px 20px rgba(251, 146, 60, 0.25);
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        &:hover:not(:disabled) {
+          transform: translateY(-3px) scale(1.05);
+          box-shadow: 0 10px 28px rgba(251, 146, 60, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(-1px) scale(0.98);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
       }
 
     }
 
+  }
+}
+
+// 全局动画关键帧
+@keyframes breathing {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typing {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes btn-breathe {
+  0%, 100% { box-shadow: 0 6px 22px rgba(251, 146, 60, 0.28); }
+  50% { box-shadow: 0 10px 34px rgba(251, 146, 60, 0.45); }
+}
+
+@keyframes header-btn-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+  50% { box-shadow: 0 0 18px rgba(255, 255, 255, 0.25); }
+}
+
+@keyframes orbit-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes core-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes text-breathe {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sidebar-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes chat-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes header-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes session-item-fade {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spinner-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes loading-bounce {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes welcome-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

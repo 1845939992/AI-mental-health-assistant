@@ -111,6 +111,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   flex-direction: column;
   min-height: 100vh;
   background: #F9FAFB;
+  overflow-x: hidden;
 }
 
 // ============================================================
@@ -129,6 +130,8 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid $color-border;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  min-width: 0; // flex 子元素允许收缩
 
   // 入场：从顶部滑入
   animation: slideDown 0.5s $transition-slow both;
@@ -185,6 +188,12 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   gap: 32px;
+  flex-shrink: 0; // 导航区优先保持完整
+  min-width: 0;   // 允许内容截断
+
+  // 高缩放级别时自动换行
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .nav-link {
@@ -301,7 +310,29 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // ============================================================
-//  响应式 — 平板
+//  高分辨率大屏优化
+// ============================================================
+@media (min-width: 1600px) {
+  .navbar-container {
+    padding: 0 64px;
+  }
+}
+
+// ============================================================
+//  响应式 — 平板横屏 / 窄桌面 (≤1200px)
+// ============================================================
+@media (max-width: 1200px) {
+  .nav-section {
+    gap: 24px;
+  }
+
+  .main-content {
+    padding: 28px 20px 44px;
+  }
+}
+
+// ============================================================
+//  响应式 — 平板竖屏 (≤991px)
 // ============================================================
 @media (max-width: 991px) {
   .navbar-container {
@@ -309,7 +340,11 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .nav-section {
-    gap: 20px;
+    gap: 18px;
+  }
+
+  .nav-link {
+    font-size: 14px;
   }
 
   .brand-name {
@@ -322,12 +357,16 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // ============================================================
-//  响应式 — 手机
+//  响应式 — 手机横屏 / 平板小屏 (≤767px)
 // ============================================================
 @media (max-width: 767px) {
   .navbar-container {
-    height: 56px;
-    padding: 0 16px;
+    height: auto;
+    min-height: 56px;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+    row-gap: 8px;
   }
 
   .brand-name {
@@ -335,7 +374,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .nav-section {
-    gap: 12px;
+    gap: 10px;
   }
 
   .nav-link {
@@ -354,6 +393,34 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
   .footer-container {
     padding: 18px 12px;
+    font-size: 12px;
+  }
+}
+
+// ============================================================
+//  响应式 — 小手机 (≤480px) — 导航紧凑排列
+// ============================================================
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 8px 10px;
+    justify-content: center;
+  }
+
+  .brand-section {
+    flex-shrink: 0;
+  }
+
+  .nav-section {
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .nav-link {
+    font-size: 12px;
+  }
+
+  .logout-btn,
+  .nav-section > a > .el-button {
     font-size: 12px;
   }
 }
