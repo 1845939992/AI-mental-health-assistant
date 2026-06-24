@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/assets/logo.png" width="150" alt="logo">
+![logo](src/assets/logo.png)
 
 # 清心AI助手
 
