@@ -130,6 +130,12 @@
   </div>
 </template>
 <script setup>
+/**
+ * 情绪日志管理页（后台）
+ * 功能：分页展示用户情绪日记，支持按用户ID和情绪评分筛选；
+ *       点击「详情」弹窗展示用户信息、情绪状态、AI 分析结果及建议；
+ *       支持列表页删除和弹窗内删除。
+ */
 import { ref, onMounted, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PageHead from '@/components/PageHead.vue'
@@ -304,6 +310,12 @@ const getMoodTagType = (tag) => {
 }
 </script>
 <style scoped>
+// ============================================================
+//  Emotional — 情绪日志管理页样式
+//  表格列表 + 详情弹窗（el-descriptions 分块展示）
+// ============================================================
+
+// -- 详情弹窗主体：限制最大高度，分块展示用户信息 / 情绪状态 / AI 分析 / 建议 --
 .detail-body {
   max-height: 60vh;
   overflow-y: auto;
@@ -324,6 +336,7 @@ const getMoodTagType = (tag) => {
     font-size: 13px;
   }
 
+  // -- 建议/风险描述文本框 --
   .suggestion-box {
     padding: 10px 14px;
     background: #f9fafb;
@@ -333,11 +346,13 @@ const getMoodTagType = (tag) => {
     line-height: 1.8;
     margin-bottom: 12px;
 
+    // 风险描述增加左侧橙色警示条
     &.risk-box {
       border-left: 3px solid #e6a23c;
     }
   }
 
+  // -- 改善建议列表：自定义绿色圆点 --
   .improvement-list {
     list-style: none;
     padding: 0;

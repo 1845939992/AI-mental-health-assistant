@@ -30,6 +30,13 @@
   </div>
 </template>
 <script setup>
+/**
+ * 登录页面
+ * 支持用户名/邮箱登录，成功后按 userType 分流：
+ *   userType=1 → 前台首页 /home
+ *   userType=2 → 后台看板 /back/dashboard
+ * JWT token 和 userInfo 存入 localStorage，由 Axios 拦截器自动携带
+ */
 import { ArrowLeft, Back } from '@element-plus/icons-vue'
 import { login } from '@/api/asmin'
 import { ElMessage } from 'element-plus'
@@ -41,7 +48,7 @@ const formData = reactive({
   password: ''
 })
 const ruleFormRef = ref()
-const passwordInputRef = ref()//密码输入框引用
+const passwordInputRef = ref() // 密码输入框引用，用于用户名回车后自动聚焦密码框
 const rules = reactive({
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' }
@@ -59,23 +66,24 @@ const focusPassword = () => {
 const handleBackHome = () => {
   router.push('/home')
 }
-//登录
+
+/**
+ * 登录提交：
+ * 1. 表单校验 → 2. 调用 login API → 3. 存储 token + userInfo 到 localStorage
+ * → 4. 按 userType 分流路由（userType=2 管理端，否则前台首页）
+ */
 const submitForm = async () => {
   if (!ruleFormRef) return
   await ruleFormRef.value.validate((valid, fields) => {
     if (valid) {
       login(formData).then((data) => {
         if (!data.token) {
-          //登录失败
           return console.error('登录失败')
         }
-        //登录成功,保存token和用户信息到localStorage,跳转到首页
         else {
-          //存储登录信息
           localStorage.setItem('token', data.token)
-          //存储用户信息
           localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
-          //根据用户角色决定跳转的路径
+          // 根据用户角色决定跳转的路径
           if (data.userInfo.userType === 2) {
             router.push('/back')
           }
@@ -94,6 +102,10 @@ const submitForm = async () => {
 
 </script>
 <style scoped lang="scss">
+// ============================================================
+//  Login — 登录页表单样式
+//  窄卡片居中布局，包含返回首页、标题、表单、底部链接
+// ============================================================
 .container {
   width: 384px;
 
@@ -121,6 +133,7 @@ const submitForm = async () => {
     }
 
     .title-text {
+      // 登录标题与副标题
       h2 {
         font-size: 36px;
         margin-bottom: 10px;
@@ -134,6 +147,7 @@ const submitForm = async () => {
   }
 
   .form-container {
+    // 表单区域：登录按钮通栏
     margin-top: 40px;
 
     .btn {

@@ -27,10 +27,15 @@
 
 
 <script setup>
+/**
+ * 后台导航栏组件
+ * 左侧：折叠/展开侧边栏按钮 + 当前路由标题
+ * 右侧：用户头像下拉菜单（退出登录），确认后调用 logout API 并清除 token
+ */
 import { useAdminStore } from '@/stores/admin'
 import { ElMessage } from 'element-plus'
 import { logout } from '@/api/asmin'
-import { computed } from 'vue'// 计算属性
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 
@@ -38,21 +43,21 @@ const adminStore = useAdminStore()
 
 const router = useRouter()
 const route = useRoute()
- 
+
+/** 下拉菜单命令处理：点击退出登录 → 确认弹窗 → 调用 logout API → 清 token → 跳登录页 */
 const handleCommand = (command) => {
   if (command === 'logout') {
-// 确认退出登录 并调用退出登录接口
     ElMessageBox.confirm('确定退出登录吗？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     }).then(() => {
       logout().then(() => {
-        // 退出登录成功后，清空本地存储中的token和userInfo信息
+        // 清空本地存储中的 token 和 userInfo
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
         ElMessage.success('退出登录成功')
-        router.push('/auth/login' )
+        router.push('/auth/login')
       })
     }).catch(() => {
       ElMessage.info('已取消退出登录')
@@ -60,7 +65,7 @@ const handleCommand = (command) => {
   }
 }
 
-
+/** 切换侧边栏折叠状态（由 Pinia store 统一管理） */
 const handleCollapse = () => {
   adminStore.toCollapse()
 }

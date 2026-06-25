@@ -16,10 +16,26 @@
   </div>
 </template>
 <script setup>
+/**
+ * 认证页公共布局（登录 / 注册）
+ * 左右分屏：左侧展示品牌文案与 Logo，右侧通过 router-view 渲染登录/注册表单
+ * 移动端自动切换为上下堆叠布局，并减少动画以提升可访问性
+ */
 const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 
 </script>
 <style scoped lang="scss">
+// ============================================================
+//  AuthLayout — 登录/注册页面公共布局
+//  结构: 左侧品牌文案 + 右侧表单，移动端上下堆叠
+// ============================================================
+
+// -- 设计令牌 -------------------------------------------------
+$color-accent: #d4a574;
+$color-text: #2c2418;
+$color-muted: #8a8076;
+
+// -- 入场动画关键帧 ------------------------------------------
 @keyframes fadeRiseIn {
   0% {
     opacity: 0;
@@ -67,6 +83,7 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   100% { height: 280px; opacity: 1; }
 }
 
+// -- 根容器：全屏水平分屏 --
 .auth-layout {
   display: flex;
   width: 100%;
@@ -76,6 +93,7 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   background: #ffffff;
 }
 
+// -- 左侧品牌区域：装饰角标 + 品牌文案 + Logo --
 .left-section {
   flex: 1;
   display: flex;
@@ -112,7 +130,9 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   }
 }
 
+// -- 品牌文案居中卡片 --
 .content {
+  // 品牌文案居中卡片，限制最大宽度保证可读性
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -137,7 +157,8 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 }
 
 .title {
-  color: #2c2418;
+  // 品牌大标题：带字间距与淡入动画
+  color: $color-text;
   font-size: 38px;
   font-weight: 500;
   letter-spacing: 10px;
@@ -160,9 +181,10 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 }
 
 .divider {
+  // 标题与文案之间的装饰分割线
   width: 48px;
   height: 1px;
-  background: #d4a574;
+  background: $color-accent;
   border: none;
   margin: 4px 0 0;
   flex-shrink: 0;
@@ -170,8 +192,9 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   animation: fadeIn 0.6s 0.35s ease-out forwards;
 }
 
+// -- 品牌副文案 --
 .text {
-  color: #8a8076;
+  color: $color-muted;
   font-size: 14px;
   line-height: 2.2;
   text-align: center;
@@ -191,6 +214,7 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   }
 }
 
+// -- 品牌 Logo 浮动动画 --
 .robot {
   margin-top: 4px;
   position: relative;
@@ -203,7 +227,9 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   }
 }
 
+// -- 右侧表单区域：从右侧滑入，带中线分隔 --
 .right-section {
+  // 右侧表单区域：从右侧滑入
   flex: 1;
   display: flex;
   align-items: center;
@@ -245,6 +271,7 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   }
 }
 
+// -- 移动端适配：左右布局改为上下堆叠 --
 @media (max-width: 768px) {
   .auth-layout {
     flex-direction: column;
@@ -298,6 +325,7 @@ const logoUrl = new URL('../assets/logo.png', import.meta.url).href
   }
 }
 
+// -- 减少动画偏好：关闭所有动画，提升可访问性 --
 @media (prefers-reduced-motion: reduce) {
   .left-section,
   .right-section,

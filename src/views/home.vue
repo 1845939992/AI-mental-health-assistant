@@ -25,10 +25,15 @@
   </div>
 </template>
 <script setup>
+/**
+ * 首页 Hero 组件
+ * 展示品牌 Logo、主标题、副标题及两个主要入口按钮（AI 咨询 / 情绪日记）
+ */
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+// 品牌 Logo 图片 URL，使用 Vite 的 import.meta.url 解析静态资源
 const logoUrl = ref(new URL('../assets/logo.png', import.meta.url).href)
 
 </script>

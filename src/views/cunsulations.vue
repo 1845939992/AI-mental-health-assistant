@@ -24,12 +24,8 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <el-pagination style="margin-top: 25px;" 
-      layout="prev, pager, next, jumper" 
-      :total="pagination.total"
-      :page-size="pagination.pageSize" 
-      :current-page="pagination.pageNum" 
-      @current-change="handleChange" />
+    <el-pagination style="margin-top: 25px;" layout="prev, pager, next, jumper" :total="pagination.total"
+      :page-size="pagination.pageSize" :current-page="pagination.pageNum" @current-change="handleChange" />
     <el-dialog v-model="showDetailDialog" title="会话详情" width="70%" :close-on-click-modal="false">
       <div class="session-detail">
         <div class="session-header">
@@ -69,24 +65,37 @@
   </div>
 </template>
 <script setup>
+/**
+ * 咨询记录管理页面
+ * 功能：分页展示所有用户的 AI 咨询会话列表，支持查看会话详情（对话记录回放）
+ * 使用 getConsulationPage 获取分页数据，getConsulationDetail 获取单条会话完整对话
+ */
 import { getConsulationPage, getConsulationDetail } from '@/api/asmin'
 import { onMounted, ref, reactive } from 'vue'
 import PageHead from '@/components/PageHead.vue'
 
-const showDetailDialog = ref(false)
-const sessionDetail = ref({})
-const tableData = ref([])
-const sessionMessages = ref([])
-const loadingMessages = ref(false)
+// --- 会话详情弹窗相关状态 ---
+const showDetailDialog = ref(false)   // 控制详情弹窗显隐
+const sessionDetail = ref({})         // 当前查看的会话元信息（用户、时间、消息数）
+const sessionMessages = ref([])       // 会话中的全部对话消息
+const loadingMessages = ref(false)    // 弹窗内消息加载中的 loading 状态
+
+// --- 列表与分页 ---
+const tableData = ref([])             // 当前页会话列表数据
 const pagination = reactive({
-  total: 0,  // 总条数
-  size: 10,  // 每页多少条
-  currentPage: 1,   // 当前页码
+  total: 0,       // 总条数（后端返回）
+  size: 10,       // 每页显示条数
+  currentPage: 1, // 当前页码
 })
+
+/**
+ * 点击行「详情」按钮，弹窗展示该会话的完整对话记录
+ * 先设置元信息并打开弹窗，再异步拉取消息列表
+ */
 const viewSessionDetail = (row) => {
   loadingMessages.value = true
   showDetailDialog.value = true
-  sessionDetail.value = row
+  sessionDetail.value = row // 先用整行数据填充元信息（标题、时间、消息数等）
   getConsulationDetail(row.id).then(res => {
     loadingMessages.value = false
     sessionMessages.value = res
@@ -95,11 +104,13 @@ const viewSessionDetail = (row) => {
   })
 }
 
+/** 分页页码变化时重新拉取数据 */
 const handleChange = (page) => {
   pagination.currentPage = page
   handleSearch()
 }
 
+/** 根据当前分页参数请求会话列表，更新 tableData 和 total */
 const handleSearch = () => {
   getConsulationPage(pagination).then(res => {
     const { total, records } = res
@@ -108,13 +119,19 @@ const handleSearch = () => {
   })
 }
 
-
+// 页面挂载后首次加载数据
 onMounted(() => {
   handleSearch()
 })
 
 </script>
 <style lang="scss" scoped>
+// ============================================================
+//  Cunsulations — 咨询记录管理页样式
+//  会话列表 + 详情弹窗（消息气泡式对话回放）
+// ============================================================
+
+// -- 列表区 -------------------------------------------------
 .session-title {
   font-size: 16px;
   font-weight: bold;
@@ -126,14 +143,14 @@ onMounted(() => {
   color: #666;
 }
 
-// ========== 会话详情弹窗 ==========
+// -- 会话详情弹窗 -------------------------------------------
 .session-detail {
   display: flex;
   flex-direction: column;
   height: 60vh;
 }
 
-// --- 会话信息头部 ---
+// --- 弹窗头部：用户/时间/消息数元信息 ---
 .session-header {
   display: flex;
   gap: 24px;
@@ -160,7 +177,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-// --- 对话区域 ---
+// --- 对话区域：可滚动消息列表 ---
 .messages-container {
   flex: 1;
   display: flex;
@@ -186,7 +203,7 @@ onMounted(() => {
   padding: 8px 4px 0;
 }
 
-// --- 消息条目 ---
+// --- 消息条目：用户靠右蓝气泡，AI 靠左灰气泡 ---
 .message-item {
   display: flex;
   flex-direction: column;

@@ -209,6 +209,15 @@
   </div>
 </template>
 <script setup>
+/**
+ * AI 咨询会话页面（前台）
+ * 布局：左侧边栏（AI 助手信息 / 情绪花园 / 会话历史）+ 右侧聊天主区域
+ * 核心流程：
+ *   1. onMounted 加载历史会话列表并创建临时会话
+ *   2. 用户发送消息 → 临时会话调用 startNewSession 转正 → 通过 SSE 流式接收 AI 回复
+ *   3. 每次 AI 回复完成后拉取情绪分析，更新情绪花园
+ *   4. 点击会话列表可切换并回放历史消息
+ */
 import { ChatRound, DeleteFilled, Plus, Promotion } from '@element-plus/icons-vue'
 import { ref, onMounted, reactive, watch, nextTick, onUnmounted } from 'vue'
 import { startSession, getSessionslist, deleteSession, getSessionMessages, getSessionEmotion } from '@/api/frontend'
@@ -604,6 +613,12 @@ onUnmounted(() => {
 
 </script>
 <style scoped lang="scss">
+// ============================================================
+//  AI Consultation — 前台 AI 咨询会话页面样式
+//  布局：左侧边栏（AI 信息 / 情绪花园 / 会话列表）+ 右侧聊天区
+// ============================================================
+
+// -- 页面根容器：固定宽度居中，整体高度减去导航栏 --
 .consultation-container {
   margin: 0 auto;
   width: 1200px;
@@ -653,6 +668,7 @@ onUnmounted(() => {
     }
   }
 
+  // -- 左侧边栏：AI 信息 / 情绪花园 / 会话历史 --
   .sidebar {
     width: 320px;
     overflow-y: auto; // 侧边栏独立滚动
@@ -663,6 +679,7 @@ onUnmounted(() => {
       pointer-events: none;
     }
 
+    // -- AI 助手信息卡：头像 / 名称 / 在线状态 --
     .ai-assistant-info {
       margin-bottom: 20px;
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 252, 248, 0.95) 100%);
@@ -718,6 +735,7 @@ onUnmounted(() => {
       }
     }
 
+    // -- 会话历史列表：可切换/删除历史会话 --
     .session-history {
       background: white;
       border-radius: 16px;
@@ -728,6 +746,7 @@ onUnmounted(() => {
       display: flex;
       flex-direction: column;
 
+      // "会话列表" 标题
       .section-title {
         font-size: 16px;
         font-weight: 600;
@@ -739,12 +758,14 @@ onUnmounted(() => {
 
       }
 
+      // 会话列表滚动容器
       .session-list {
         overflow-y: auto;
         max-height: 200px;
         scrollbar-width: thin;
         scrollbar-color: rgba(64, 150, 255, 0.3) transparent;
 
+        // 单个会话项：悬浮 / 选中态 + 删除按钮
         .session-item {
           position: relative;
           display: flex;
@@ -836,6 +857,7 @@ onUnmounted(() => {
       }
     }
 
+    // -- 情绪花园：展示当前会话情绪评分、建议与风险提示 --
     .emotion-garden {
       background: linear-gradient(165deg, #fdf6ee 0%, #fef3e4 40%, #fcf0dd 100%);
       border-radius: 20px;
@@ -877,6 +899,7 @@ onUnmounted(() => {
         }
       }
 
+      // -- 情绪信息圆环：主要情绪 + 情绪分数 --
       .emotion-info {
         margin: 0 auto 20px;
         width: 90px;
@@ -930,10 +953,12 @@ onUnmounted(() => {
         }
       }
 
+      // -- 温暖建议区：状态文本 / 强度点 / 建议卡片 / 治愈行动 / 风险提示 --
       .warm-tips {
         text-align: center;
         margin-bottom: 0;
 
+        // 当前状态文本（今天感觉 + 情绪状态标签）
         .emotion-status-text {
           margin-bottom: 14px;
 
@@ -955,6 +980,7 @@ onUnmounted(() => {
           }
         }
 
+        // 情绪强度指示器：3 个点 + 风险文本
         .emotion-intensity {
           margin-bottom: 18px;
           display: flex;
@@ -988,6 +1014,7 @@ onUnmounted(() => {
           }
         }
 
+        // 小建议卡片
         .warm-suggestion {
           background: rgba(255, 255, 255, 0.75);
           backdrop-filter: blur(8px);
@@ -1031,6 +1058,7 @@ onUnmounted(() => {
           }
         }
 
+        // 治愈小行动列表
         .healing-actions {
           margin-bottom: 14px;
 
@@ -1087,6 +1115,7 @@ onUnmounted(() => {
           }
         }
 
+        // 风险提示卡片（负面情绪且风险等级>1 时展示）
         .risk-notice {
           background: linear-gradient(135deg, #fff8eb, #ffecb3);
           border-radius: 14px;
@@ -1157,6 +1186,7 @@ onUnmounted(() => {
     }
   }
 
+  // -- 右侧聊天主区域：头部 / 消息列表 / 输入框 --
   .chat-main {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 252, 250, 0.98) 100%);
     border-radius: 20px;
@@ -1167,7 +1197,7 @@ onUnmounted(() => {
     flex-direction: column;
     overflow: hidden;
     flex: 1;
-    animation: chat-slide-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+    animation: chat-slide-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both; // -- 聊天头部：AI 助手标题与新建会话按钮 --
 
     .chat-header {
       background: linear-gradient(90deg, #fb923c 0%, #f59e0b 40%, #f472b6 80%, #fb923c 100%);
@@ -1213,6 +1243,7 @@ onUnmounted(() => {
         }
       }
 
+      // 右上角新建会话按钮
       .header-right {
         .new-session-btn {
           width: 40px;
@@ -1240,6 +1271,7 @@ onUnmounted(() => {
       }
     }
 
+    // -- 聊天消息区：欢迎消息 / 用户消息 / AI 消息 / 打字指示器 --
     .chat-messages {
       flex: 1;
       overflow-y: auto;
@@ -1252,11 +1284,13 @@ onUnmounted(() => {
       scrollbar-width: thin;
       scrollbar-color: rgba(251, 146, 60, 0.3) transparent;
 
+      // -- 单条消息：头像 + 气泡 + 时间 --
       .message-item {
         display: flex;
         align-items: flex-start;
         gap: 12px;
 
+        // 用户/AI 头像
         .message-avatar {
           width: 32px;
           height: 32px;
@@ -1299,12 +1333,14 @@ onUnmounted(() => {
           animation: welcome-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
+        // 消息内容区：气泡 + 时间
         .message-content {
           max-width: 70%;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
 
+          // 消息气泡容器
           .message-bubble {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 252, 248, 0.95) 100%);
             border-radius: 16px;
@@ -1314,6 +1350,7 @@ onUnmounted(() => {
             border: 1px solid rgba(251, 146, 60, 0.1);
             box-shadow: 0 4px 16px rgba(251, 146, 60, 0.05);
 
+            // AI 打字中指示器：三个跳动圆点
             .typing-indicator {
               display: flex;
               gap: 4px;
@@ -1336,6 +1373,7 @@ onUnmounted(() => {
               }
             }
 
+            // AI 错误消息样式
             /* 错误消息样式 */
             .error-message {
               background: linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%);
@@ -1350,6 +1388,7 @@ onUnmounted(() => {
             }
           }
 
+          // 消息时间戳
           .message-time {
             font-size: 12px;
             color: #999;
@@ -1359,6 +1398,7 @@ onUnmounted(() => {
       }
     }
 
+    // -- 聊天输入区：多行输入框 + 发送按钮 --
     .chat-input {
       border-top: 1px solid rgba(251, 146, 60, 0.1);
       padding: 20px 24px;
@@ -1369,14 +1409,17 @@ onUnmounted(() => {
       backdrop-filter: blur(10px);
       flex-shrink: 0;
 
+      // 输入框与字数提示包裹层
       .input-wrapper {
         flex: 1;
       }
 
+      // 多行输入框容器
       .input-container {
         flex: 1;
       }
 
+      // 底部提示：快捷键 + 已输入字数
       .input-footer {
         display: flex;
         justify-content: space-between;
@@ -1387,6 +1430,7 @@ onUnmounted(() => {
         margin-top: 4px;
       }
 
+      // 发送按钮：圆角方形 + 渐变背景
       .send-btn {
         height: 60px;
         width: 60px;
@@ -1416,16 +1460,31 @@ onUnmounted(() => {
   }
 }
 
-// 全局动画关键帧
+// -- 全局动画关键帧：加载 / 呼吸 / 打字 / 滑入等 --
 @keyframes breathing {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(5, 150, 105, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
+  }
 }
 
 @keyframes fadeInUp {
@@ -1433,6 +1492,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(24px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1440,43 +1500,95 @@ onUnmounted(() => {
 }
 
 @keyframes typing {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50% { transform: translateY(-5px); opacity: 1; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
 }
 
 @keyframes btn-breathe {
-  0%, 100% { box-shadow: 0 6px 22px rgba(251, 146, 60, 0.28); }
-  50% { box-shadow: 0 10px 34px rgba(251, 146, 60, 0.45); }
+
+  0%,
+  100% {
+    box-shadow: 0 6px 22px rgba(251, 146, 60, 0.28);
+  }
+
+  50% {
+    box-shadow: 0 10px 34px rgba(251, 146, 60, 0.45);
+  }
 }
 
 @keyframes header-btn-glow {
-  0%, 100% { box-shadow: 0 0 0 rgba(255, 255, 255, 0); }
-  50% { box-shadow: 0 0 18px rgba(255, 255, 255, 0.25); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+  }
 }
 
 @keyframes orbit-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes core-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
 }
 
 @keyframes text-breathe {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes overlay-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes page-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes sidebar-slide-in {
@@ -1484,6 +1596,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -1495,6 +1608,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1502,8 +1616,13 @@ onUnmounted(() => {
 }
 
 @keyframes header-shimmer {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
 }
 
 @keyframes session-item-fade {
@@ -1511,6 +1630,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -1518,8 +1638,13 @@ onUnmounted(() => {
 }
 
 @keyframes spinner-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes loading-bounce {
@@ -1527,6 +1652,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -1538,6 +1664,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

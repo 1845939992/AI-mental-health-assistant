@@ -17,7 +17,9 @@
         <!-- 左侧推荐骨架 -->
         <div class="recommend-section">
           <div class="section-title skeleton-title">
-            <el-icon><Star /></el-icon>
+            <el-icon>
+              <Star />
+            </el-icon>
             <span>推荐阅读</span>
           </div>
           <div class="recommend-list">
@@ -58,22 +60,21 @@
         <!-- 左侧推荐阅读 -->
         <div class="recommend-section">
           <div class="section-title">
-            <el-icon><Star /></el-icon>
+            <el-icon>
+              <Star />
+            </el-icon>
             <span>推荐阅读</span>
           </div>
           <div class="recommend-list">
-            <div
-              v-for="(item, index) in recommendList"
-              :key="item.id"
-              class="recommend-item"
-              :style="{ animationDelay: `${0.12 + index * 0.08}s` }"
-              @click="handleRecommendClick(item.id)"
-            >
+            <div v-for="(item, index) in recommendList" :key="item.id" class="recommend-item"
+              :style="{ animationDelay: `${0.12 + index * 0.08}s` }" @click="handleRecommendClick(item.id)">
               <div class="rank-badge" :class="{ top: index < 3 }">{{ index + 1 }}</div>
               <div class="recommend-body">
                 <div class="recommend-title">{{ item.title }}</div>
                 <div class="read-count">
-                  <el-icon :size="12"><View /></el-icon>
+                  <el-icon :size="12">
+                    <View />
+                  </el-icon>
                   <span>浏览量：{{ item.readCount }}</span>
                 </div>
               </div>
@@ -83,22 +84,16 @@
 
         <!-- 右侧文章列表 -->
         <div class="article-list">
-          <div
-            v-for="(article, index) in articleList"
-            :key="article.id"
-            class="article-item"
-            :style="{ animationDelay: `${0.16 + index * 0.07}s` }"
-            @click="handleRecommendClick(article.id)"
-          >
+          <div v-for="(article, index) in articleList" :key="article.id" class="article-item"
+            :style="{ animationDelay: `${0.16 + index * 0.07}s` }" @click="handleRecommendClick(article.id)">
             <div class="cover-wrapper">
-              <el-image
-                :src="article.coverImage ? fileBaseUrl + article.coverImage : knowledgeUrl"
-                fit="cover"
-                class="cover-image"
-              >
+              <el-image :src="article.coverImage ? fileBaseUrl + article.coverImage : knowledgeUrl" fit="cover"
+                class="cover-image">
                 <template #error>
                   <div class="cover-fallback">
-                    <el-icon :size="28"><Document /></el-icon>
+                    <el-icon :size="28">
+                      <Document />
+                    </el-icon>
                   </div>
                 </template>
               </el-image>
@@ -113,15 +108,21 @@
               <p class="summary">{{ article.summary }}</p>
               <div class="meta-row">
                 <span class="meta-item">
-                  <el-icon :size="14"><User /></el-icon>
+                  <el-icon :size="14">
+                    <User />
+                  </el-icon>
                   {{ article.authorName || '系统管理员' }}
                 </span>
                 <span class="meta-item">
-                  <el-icon :size="14"><Calendar /></el-icon>
+                  <el-icon :size="14">
+                    <Calendar />
+                  </el-icon>
                   {{ dayjs(article.updatedAt).format('YYYY-MM-DD') }}
                 </span>
                 <span class="meta-item">
-                  <el-icon :size="14"><View /></el-icon>
+                  <el-icon :size="14">
+                    <View />
+                  </el-icon>
                   观看人数：{{ article.readCount }}
                 </span>
               </div>
@@ -130,7 +131,9 @@
 
           <!-- 空状态 -->
           <div v-if="articleList.length === 0" class="empty-state">
-            <el-icon :size="48"><Document /></el-icon>
+            <el-icon :size="48">
+              <Document />
+            </el-icon>
             <p>暂无文章，敬请期待</p>
           </div>
         </div>
@@ -138,19 +141,19 @@
 
       <!-- 分页 -->
       <div class="pagination-wrapper animate-in stagger-3" v-if="articleList.length > 0">
-        <el-pagination
-          v-model:current-page="pagination.currentPage"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          layout="prev, pager, next"
-          @current-change="handlePageChange"
-        />
+        <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.size"
+          :total="pagination.total" layout="prev, pager, next" @current-change="handlePageChange" />
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
+/**
+ * 心理健康知识库列表页
+ * 布局：左侧推荐阅读（按浏览量 Top 5）+ 右侧文章列表（按发布时间倒序，带分页）
+ * 数据加载期间展示自定义骨架屏，加载完成后渲染真实内容 + Stagger 入场动画
+ */
 import { ref, reactive, onMounted } from 'vue'
 import { fileBaseUrl, knowledgeUrl } from '@/config/index.js'
 import { ElMessage, dayjs } from 'element-plus'
@@ -159,68 +162,78 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// 页面加载状态
+// 页面加载状态（true=骨架屏，false=真实内容）
 const loading = ref(true)
 
-// 推荐列表（取前5篇高浏览量的文章）
+/**
+ * 推荐列表（左侧悬浮卡片区，取前 5 篇高浏览量文章）
+ * 仅首次加载时填充，翻页时不重新拉取，避免左侧抖动
+ */
 const recommendList = ref([])
 
-// 文章列表
+// 右侧文章列表
 const articleList = ref([])
 
-// 推荐阅读参数配置
+/** 推荐阅读参数：按 readCount 倒序，前 5 篇 */
 const params = reactive({
-  sortField: 'readCount',//按阅读量排序
-  sortDirection: 'desc',//倒序排列
-  currentPage: 1,//当前页
-  size: 5,//总条数
+  sortField: 'readCount',   // 按阅读量排序
+  sortDirection: 'desc',    // 倒序排列
+  currentPage: 1,           // 当前页
+  size: 5,                  // 取 5 篇
 })
 
-// 右侧列表分页参数配置
+/** 右侧列表分页参数：按发布时间倒序 */
 const pagination = reactive({
-  currentPage: 1, //当前页
-  size: 10, //每页条数
-  total: 0, //总条数
+  currentPage: 1,  // 当前页
+  size: 10,        // 每页条数
+  total: 0,        // 总条数（后端返回）
 })
 
-// 获取文章列表数据
+/**
+ * 获取文章列表数据
+ * 首次加载时：同时拉取右侧列表 + 左侧推荐列表（推荐仅首次加载避免闪烁）
+ * 翻页时：仅拉取右侧列表
+ */
 const fetchArticles = async () => {
   try {
-    loading.value = true // 开启加载状态
+    loading.value = true
     const res = await getKnowledgelist({
-      sortField: 'publishedAt',//按发布时间排序
-      sortDirection: 'desc',//倒序排列
+      sortField: 'publishedAt',  // 按发布时间排序
+      sortDirection: 'desc',     // 倒序排列
       ...pagination,
     })
     articleList.value = res.records || []
-    params.total = res.total || 0
+    pagination.total = res.total || 0
 
-    // 填充推荐列表（取前5条，按阅读量排序）
+    // 推荐列表仅在首次加载时填充（recommendList 为空时），翻页不再重复请求
     if (recommendList.value.length === 0) {
       const allRes = await getKnowledgelist({ currentPage: 1, size: 20, sortField: params.sortField, sortDirection: params.sortDirection })
+      // 客户端侧排序确保前 5 为真实浏览量最高
       const sorted = (allRes.records || []).sort((a, b) => (b.readCount || 0) - (a.readCount || 0))
       recommendList.value = sorted.slice(0, 5)
     }
   } catch {
-    // 加载失败
+    // 加载失败时保持上一次数据，不做额外 toast（避免干扰用户浏览）
   } finally {
-    loading.value = false // 关闭加载状态
+    loading.value = false
   }
 }
 
-// 点击推荐项跳转到对应文章
+/** 点击推荐项或文章卡片，跳转到文章详情页 */
 const handleRecommendClick = (id) => {
   router.push(`/f-knowledge/article/${id}`)
 }
 
-// 切换页码
+/** 切换页码：更新 currentPage 后重新拉取数据 */
 const handlePageChange = (page) => {
   pagination.currentPage = page
   fetchArticles()
 }
 
+// 页面挂载后拉取推荐列表和文章列表
 onMounted(() => {
   fetchArticles()
+  // 额外调用一次确保推荐列表兜底（fetchArticles 内部仅在首屏填充推荐）
   getKnowledgelist(params).then(res => {
     recommendList.value = res.records || []
   })
@@ -228,12 +241,19 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+// ============================================================
+//  Knowledge — 前台心理健康知识库列表页样式
+//  结构：全宽渐变头部 + 两栏内容（左侧推荐 / 右侧文章列表）+ 分页
+// ============================================================
+
+// -- 关键帧动画：淡入上浮 + 脉冲 + 骨架屏流光 --
 /* 页面进入动画：淡入 + 上浮 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(24px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -241,15 +261,28 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.85; }
-  50% { opacity: 0.55; }
+
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
+// -- 设计变量与页面容器：柔和、专业的心理健康主题色 --
 /* 设计变量：柔和、专业的心理健康主题色 */
 .knowledge-container {
   --primary: #6366f1;
@@ -278,9 +311,17 @@ onMounted(() => {
     animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.15s; }
-  .stagger-3 { animation-delay: 0.25s; }
+  .stagger-1 {
+    animation-delay: 0.05s;
+  }
+
+  .stagger-2 {
+    animation-delay: 0.15s;
+  }
+
+  .stagger-3 {
+    animation-delay: 0.25s;
+  }
 
   .flex-box {
     display: flex;
@@ -291,6 +332,7 @@ onMounted(() => {
     }
   }
 
+  // -- 头部区域：大气渐变 + 微光纹理 --
   /* 头部：大气渐变 + 微光纹理 */
   .header-section {
     width: 100vw;
@@ -350,6 +392,7 @@ onMounted(() => {
     }
   }
 
+  // -- 内容区：左侧推荐栏 + 右侧文章列表 --
   .content {
     display: flex;
     gap: 28px;
@@ -357,6 +400,7 @@ onMounted(() => {
     width: 1200px;
     padding: 0 20px;
 
+    // -- 左侧推荐栏：按浏览量排序 Top 5，吸顶展示 --
     /* 左侧推荐栏 */
     .recommend-section {
       width: 300px;
@@ -470,6 +514,7 @@ onMounted(() => {
       }
     }
 
+    // -- 右侧文章列表：卡片式布局，带封面、摘要、元信息 --
     /* 右侧文章列表 */
     .article-list {
       flex: 1;
@@ -604,6 +649,7 @@ onMounted(() => {
     }
   }
 
+  // -- 分页区域：居中展示，页码带悬停动画 --
   /* 分页 */
   .pagination-wrapper {
     display: flex;
@@ -639,6 +685,7 @@ onMounted(() => {
     }
   }
 
+  // -- 空状态：暂无文章时展示 --
   /* 空状态 */
   .empty-state {
     display: flex;
@@ -657,6 +704,7 @@ onMounted(() => {
     }
   }
 
+  // -- 骨架屏：数据加载期间保持布局不跳动 --
   /* 骨架屏样式 */
   .skeleton-content {
     pointer-events: none;

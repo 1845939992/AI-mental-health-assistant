@@ -114,32 +114,44 @@
   </div>
 </template>
 <script setup>
+/**
+ * 管理端数据看板
+ * 展示系统运营核心指标（总用户/情绪日志/咨询会话/平均心情）+ 三张 ECharts 图表
+ * 数据流：onMounted → getAnalyticsOverview() → 填充 aiData → initChart() 渲染图表
+ */
 import { getAnalyticsOverview } from '@/api/asmin'
 import { onMounted, ref } from 'vue'
 import * as echarts from 'echarts'
 
-const aiData = ref({})
+const aiData = ref({}) // 所有图表数据统一存储，由 overview API 一次返回
+
+// --- 统计卡片图标（Vite 动态导入）---
 const iconUrl1 = new URL('@/assets/images/users.png', import.meta.url).href
 const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
 const iconUrl3 = new URL('@/assets/images/comments.png', import.meta.url).href
 const iconUrl4 = new URL('@/assets/images/开心.png', import.meta.url).href
 
+// --- 图表 DOM 引用与实例 ---
+// 三张图表的容器引用和 ECharts 实例分开管理，避免 dispose/init 时的竞态
+const emotionChartRef = ref(null)       // 用户情绪趋势图容器
+let emotionChart = null                 // 用户情绪趋势图实例
+const consultationChartRef = ref(null)  // 咨询会话统计图容器
+let consultationChart = null            // 咨询会话统计图实例
+const userActiveChartRef = ref(null)    // 用户活跃度趋势图容器
+let userActiveChartChart = null         // 用户活跃度趋势图实例
 
-const emotionChartRef = ref(null)// 图表容器
-let emotionChart = null // 图表实例
-const consultationChartRef = ref(null)// 图表容器
-let consultationChart = null // 图表实例
-const userActiveChartRef = ref(null)// 图表容器
-let userActiveChartChart = null // 图表实例
-
+/** 统一初始化三张图表 */
 const initChart = () => {
   initEmotionChart()
   initConsultationChart()
   initUserActiveChart()
 }
 
-// 初始化图表
-// 初始化用户情绪趋势图表
+/**
+ * 初始化「用户情绪趋势」图表
+ * 双 Y 轴折线图：左轴=平均情绪评分（紫色），右轴=记录数量（金色）
+ * 带渐变填充区域，line 类型，smooth 曲线
+ */
 const initEmotionChart = () => {
   if (!emotionChartRef.value) return
   // 清空旧图表
@@ -303,7 +315,11 @@ const initEmotionChart = () => {
   // 渲染图表
   emotionChart.setOption(option)
 }
-// 初始化用户会话趋势图表
+/**
+ * 初始化「咨询会话统计」图表
+ * 柱状图（双系列）：会话数量（紫蓝渐变柱）+ 参与用户数（金色渐变柱）
+ * 带阴影指示器（shadow），tooltip 智能定位避免溢出
+ */
 const initConsultationChart = () => {
   if (!consultationChartRef.value) return
   // 清空旧图表
@@ -456,7 +472,11 @@ const initConsultationChart = () => {
   // 渲染图表
   consultationChart.setOption(option)
 }
-// 初始化用户活跃度趋势图表
+/**
+ * 初始化「用户活跃度趋势」图表
+ * 四系列折线图（全宽占一行）：活跃用户 / 新增用户 / 日记用户 / 咨询用户
+ * 四色区分（紫/金/绿/红），各带渐变填充，smooth 曲线
+ */
 const initUserActiveChart = () => {
   if (!userActiveChartRef.value) return
   // 清空旧图表
@@ -621,10 +641,14 @@ const initUserActiveChart = () => {
 
 
 
+/**
+ * 页面挂载后：先拉取 overview 数据填充 aiData，再调用 initChart 统一渲染三张图表
+ * 注意：必须先有数据再渲染，否则 ECharts 绑定的是空数据集
+ */
 onMounted(() => {
   getAnalyticsOverview().then(res => {
     aiData.value = res
-    initChart()
+    initChart() // 数据就绪后统一渲染，避免多次 setOption 闪烁
   })
 })
 

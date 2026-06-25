@@ -7,6 +7,11 @@
   </div>
 </template>
 <script setup>
+/**
+ * 页面头部组件
+ * 接收 title 属性渲染标题，通过 buttons 插槽支持在右侧添加操作按钮
+ * 适用于所有管理端页面头部（如"情绪日志""知识文章"等）
+ */
 const props = defineProps({
   title: {
     type: String,

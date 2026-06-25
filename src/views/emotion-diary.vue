@@ -29,8 +29,7 @@
           <div class="emotion-grid">
             <div v-for="(emotion, index) in emotionList" :key="emotion.value" class="emotion-card"
               :class="{ selected: form.dominantEmotion === emotion.label }"
-              @click="form.dominantEmotion = emotion.label"
-              :style="{ animationDelay: `${index * 0.04}s` }">
+              @click="form.dominantEmotion = emotion.label" :style="{ animationDelay: `${index * 0.04}s` }">
               <span class="emotion-icon">{{ emotion.icon }}</span>
               <div class="emotion-name">{{ emotion.label }}</div>
             </div>
@@ -85,10 +84,16 @@
 </template>
 
 <script setup>
+/**
+ * 情绪日记填写页（前台）
+ * 用户选择情绪评分、主要情绪，填写触发因素、感想及生活质量指标后提交。
+ * 提交成功后自动重置表单，可继续记录新的一天。
+ */
 import { reactive, ref, onMounted } from 'vue'
 import { addEmotionDiary } from '@/api/frontend'
 import { ElMessage, dayjs } from 'element-plus'
 
+// 可选情绪列表：label 用于展示与提交，icon 用于卡片表情
 const emotionList = [
   { label: '开心', value: 'happy', icon: '😊' },
   { label: '平静', value: 'calm', icon: '😌' },
@@ -225,6 +230,7 @@ $content-max-width: 980px;
   }
 
   /* ==================== CONTENT ==================== */
+  // -- 内容区：情绪日记表单卡片 --
   .content {
     margin: 0 auto;
     width: $content-max-width;
@@ -232,6 +238,7 @@ $content-max-width: 980px;
     padding: 24px 20px;
     animation: content-slide-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 
+    // -- 日记卡片：毛玻璃背景 + 柔和阴影 --
     .diary-card {
       margin-bottom: 24px;
       background: rgba(255, 255, 255, 0.96);
@@ -251,6 +258,7 @@ $content-max-width: 980px;
       }
 
       .title {
+        // 各区块标题（今日情绪评分 / 主要情绪 / 详细记录）
         margin-bottom: 16px;
         font-size: 22px;
         font-weight: 700;
@@ -258,6 +266,7 @@ $content-max-width: 980px;
       }
 
       .section {
+        // 表单分区，控制区块间距
         margin-bottom: 28px;
 
         p {
@@ -276,11 +285,14 @@ $content-max-width: 980px;
         }
       }
 
+      // -- 情绪选择网格：8 种情绪卡片平铺 --
       .emotion-grid {
+        // 情绪选择卡片网格：8 种情绪平铺展示
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
 
+        // -- 单个情绪卡片：悬浮上浮 + 选中彩虹边框 --
         .emotion-card {
           padding: 18px 14px;
           border: 2px solid #E5E7EB;
@@ -334,7 +346,10 @@ $content-max-width: 980px;
         }
       }
 
+      // -- 详细记录区：触发因素、感想、睡眠质量、压力水平 --
       .detail-form {
+
+        // 详细记录区：触发因素、感想、睡眠质量、压力水平
         .form-label {
           margin: 16px 0 8px;
           color: #374151;
@@ -361,11 +376,13 @@ $content-max-width: 980px;
           }
         }
 
+        // -- 操作按钮：重置 + 提交 --
         .action-buttons {
           margin-top: 40px;
           display: flex;
           gap: 12px;
 
+          // 提交按钮：紫粉渐变 + 悬浮放大阴影
           .submit-btn {
             background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
             border: none;

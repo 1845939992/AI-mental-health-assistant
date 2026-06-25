@@ -19,11 +19,17 @@
     </div>
 </template>
 <script>
-  import '@wangeditor/editor/dist/css/style.css' // 引入 css
+  /**
+   * 富文本编辑器组件（基于 wangEditor v5）
+   * 支持 v-model 双向绑定，通过 placeholder/maxLength/toolbarKeys 配置编辑器行为
+   * 组件销毁时自动调用 editor.destroy() 释放内存
+   */
+  import '@wangeditor/editor/dist/css/style.css'
 
   import { onBeforeUnmount, ref, shallowRef, watch, reactive } from 'vue'
   import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
+  // 默认工具栏配置：粗体/斜体/下划线/颜色/字号/标题/列表/链接等
   const defaultToolbarKeys = [
     'bold','italic','underline','color','bgColor','|','fontSize','fontFamily','|','header1','header2','header3','|','bulletedList','numberedList','blockquote','|','insertLink','|','undo','redo'
   ]
@@ -50,7 +56,7 @@
     },
     emits: ['update:modelValue', 'change'],
     setup(props, { emit }) {
-      // 编辑器实例，必须用 shallowRef
+      // 编辑器实例，必须用 shallowRef 避免深度响应式导致性能问题
       const editorRef = shallowRef()
 
       // 内容 HTML

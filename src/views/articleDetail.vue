@@ -15,7 +15,7 @@
 
     <!-- 正文 -->
     <div class="content">
-      <!-- 加载状态：骨架屏 -->
+      <!-- 加载状态：骨架屏（标题、摘要、元信息、封面、正文段落占位） -->
       <div v-if="isLoading" class="diary-card skeleton-card">
         <el-skeleton animated>
           <template #template>
@@ -29,7 +29,8 @@
               <el-skeleton-item variant="text" style="width: 120px; height: 16px;" />
               <el-skeleton-item variant="text" style="width: 120px; height: 16px;" />
             </div>
-            <el-skeleton-item variant="image" style="width: 100%; height: 320px; margin: 20px 0; border-radius: 12px;" />
+            <el-skeleton-item variant="image"
+              style="width: 100%; height: 320px; margin: 20px 0; border-radius: 12px;" />
             <el-skeleton-item variant="p" style="width: 100%; height: 16px; margin-bottom: 10px;" />
             <el-skeleton-item variant="p" style="width: 96%; height: 16px; margin-bottom: 10px;" />
             <el-skeleton-item variant="p" style="width: 92%; height: 16px; margin-bottom: 10px;" />
@@ -39,7 +40,7 @@
       </div>
 
       <div v-else class="diary-card">
-        <!-- 文章基本信息 -->
+        <!-- 文章基本信息区：标题 / 摘要 / 分类 / 作者 / 日期 / 阅读量 -->
         <div class="title">文章基本信息</div>
 
         <!-- 文章标题 -->
@@ -91,7 +92,7 @@
         <!-- 文章正文（富文本） -->
         <div v-if="article.content" class="content-wrapper" v-html="formatContent(article.content)"></div>
 
-        <!-- 文章标签 -->
+        <!-- 文章标签区：将后端 tagArray 渲染为圆角标签 -->
         <div v-if="tags.length" class="tags-content">
           <div class="tags-title">相关标签</div>
           <div class="tags-list">
@@ -106,10 +107,15 @@
   </div>
 </template>
 <script setup>
+/**
+ * 知识库文章详情页
+ * 根据路由参数 :id 调用 API 获取文章完整信息并渲染。
+ * 数据加载期间展示骨架屏（el-skeleton），加载完成后渲染文章标题、摘要、封面、富文本正文及标签。
+ */
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getKnowledgeDetail } from '@/api/frontend'
-import { fileBaseUrl } from '@/config/index.js'
+import { fileBaseUrl } from '@/config/index.js' // 后端文件服务基础 URL，用于拼接封面图地址
 import { dayjs } from 'element-plus'
 
 const route = useRoute()
@@ -118,16 +124,24 @@ const router = useRouter()
 // 存储知识库文章详情
 const article = ref({})
 
-// 页面加载状态
+// 页面加载状态（true 时展示骨架屏，false 时展示真实内容）
 const isLoading = ref(true)
 
-// 标签字符串拆分为数组
+/**
+ * 将后端返回的 tagArray 转为响应式数组，供标签列表渲染
+ * computed 而非直接赋值，确保 article 更新后 DOM 同步刷新
+ */
 const tags = computed(() => {
   if (!article.value.tagArray) return []
   return article.value.tagArray
 })
 
-// 基本的HTML清理和格式化
+/**
+ * 对文章正文进行基础的 XSS-safe 格式化
+ * - 换行符 → <br>（适配纯文本文本存储的换行）
+ * - **text** → <strong>（粗体）
+ * - *text* → <em>（斜体）
+ */
 const formatContent = (content) => {
   if (!content) return ''
 
@@ -138,23 +152,35 @@ const formatContent = (content) => {
   return formattedContent
 }
 
+/**
+ * onMounted 生命周期：
+ * 先设置 isLoading = true（触发骨架屏），再异步拉取文章数据，
+ * 无论成功与否，最终都将 isLoading 置为 false 以展示真实内容或空状态
+ */
 onMounted(async () => {
   isLoading.value = true
   try {
     article.value = await getKnowledgeDetail(route.params.id)
   } catch {
-    article.value = {}
+    article.value = {} // 请求失败时清空，避免展示上次缓存的旧数据
   } finally {
     isLoading.value = false
   }
 })
 </script>
 <style lang="scss" scoped>
+/**
+ * articleDetail 页面样式
+ * 布局：全宽渐变头部 → 居中正文卡片（骨架屏 / 真实内容）
+ */
+
+/** 页面容器 — 淡入动画 */
 .articleDetail-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #fafbfc 0%, #f7f9fc 50%, #f2f6fa 100%);
   animation: page-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 
+  /** 元信息行：作者 / 日期 / 阅读量 */
   .flex-box {
     display: flex;
     align-items: center;
@@ -168,6 +194,7 @@ onMounted(async () => {
     }
   }
 
+  /** 全屏宽紫粉渐变头部，带下滑动画 */
   .header-section {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
@@ -205,6 +232,8 @@ onMounted(async () => {
     }
   }
 
+  /** 正文区域 — 居中最大 980px，上浮动画 */
+  // -- 正文区域：居中最大 980px，上浮动画 --
   .content {
     margin: 0 auto;
     width: 980px;
@@ -212,6 +241,7 @@ onMounted(async () => {
     padding: 24px 20px;
     animation: content-slide-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 
+    // -- 文章卡片：毛玻璃 + 柔和阴影 --
     .diary-card {
       margin-bottom: 24px;
       background: rgba(255, 255, 255, 0.95);
@@ -230,6 +260,8 @@ onMounted(async () => {
           0 4px 12px rgba(139, 92, 246, 0.1);
       }
 
+      // -- 骨架屏内部布局占位 --
+      /** 骨架屏内部布局 */
       &.skeleton-card {
         .skeleton-header {
           margin-bottom: 16px;
@@ -242,6 +274,7 @@ onMounted(async () => {
         }
       }
 
+      // -- "文章基本信息" 小标题 --
       .title {
         margin-bottom: 16px;
         font-size: 18px;
@@ -250,6 +283,7 @@ onMounted(async () => {
         letter-spacing: 0.3px;
       }
 
+      // -- 分类标签与作者/日期/阅读量元信息行 --
       .sub-title {
         margin-top: 22px;
         display: flex;
@@ -262,6 +296,7 @@ onMounted(async () => {
         }
       }
 
+      // -- 文章大标题 --
       .article-title {
         font-size: 32px;
         font-weight: 800;
@@ -271,6 +306,8 @@ onMounted(async () => {
         line-height: 1.25;
       }
 
+      // -- 封面图容器：圆角裁剪 + 阴影 --
+      /** 封面图容器 — 圆角裁剪 + 阴影 */
       .cover-image-wrapper {
         margin: 24px 0;
         border-radius: 14px;
@@ -291,6 +328,8 @@ onMounted(async () => {
         }
       }
 
+      // -- 摘要区：绿色左边框高亮 --
+      /** 摘要区 — 绿色左边框高亮 */
       .summary-content {
         background: linear-gradient(135deg, rgba(126, 211, 33, 0.12) 0%, rgba(126, 211, 33, 0.05) 100%);
         border-left: 4px solid #7ED321;
@@ -300,6 +339,8 @@ onMounted(async () => {
         margin-bottom: 8px;
       }
 
+      // -- 富文本正文：段落、标题、列表、图片排版规范 --
+      /** 富文本正文 — 排版规范：段间距、标题样式、列表缩进 */
       .content-wrapper {
         font-size: 16px;
         line-height: 1.8;
@@ -352,6 +393,8 @@ onMounted(async () => {
         }
       }
 
+      // -- 标签区：顶部分割线 + 弹入动画 --
+      /** 标签区 — 顶部分割线 + 弹入动画 */
       .tags-content {
         margin-top: 28px;
         padding-top: 20px;
@@ -384,6 +427,7 @@ onMounted(async () => {
   }
 }
 
+/** 页面淡入 */
 @keyframes page-fade-in {
   from {
     opacity: 0;
@@ -394,6 +438,7 @@ onMounted(async () => {
   }
 }
 
+/** 头部下滑 */
 @keyframes header-slide-down {
   from {
     opacity: 0;
@@ -406,6 +451,7 @@ onMounted(async () => {
   }
 }
 
+/** 正文上浮 */
 @keyframes content-slide-up {
   from {
     opacity: 0;
@@ -418,6 +464,7 @@ onMounted(async () => {
   }
 }
 
+/** 标签弹入（缩放 + 回弹） */
 @keyframes tag-pop {
   from {
     opacity: 0;
@@ -430,6 +477,7 @@ onMounted(async () => {
   }
 }
 
+/** 手机端适配：缩小标题字号和卡片内边距 */
 @media (max-width: 767px) {
   .articleDetail-container {
     .header-section {

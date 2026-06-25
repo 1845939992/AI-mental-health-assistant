@@ -40,6 +40,11 @@
   </div>
 </template>
 <script setup>
+/**
+ * 注册页面
+ * 提交 formData 到 /api/user/add 接口创建新用户（userType 固定为 1 前台用户）
+ * 注册成功后自动跳转到登录页
+ */
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Back } from '@element-plus/icons-vue'
@@ -52,10 +57,10 @@ const handleBackHome = () => {
   router.push('/home')
 }
 
-// 注册表单引用
+// 注册表单引用（用于 validate / resetFields）
 const submitFormRef = ref(null)
 
-// 注册表单数据
+// 注册表单数据：username/email/password 必填，nickname/phone 可选，userType 固定 1（前台用户）
 const formData = ref({
   "username": "",
   "email": "",
@@ -64,10 +69,10 @@ const formData = ref({
   "password": "",
   "confirmPassword": "",
   "gender": 0, //（1 男 2 女）
-  "userType": 1
+  "userType": 1  // 固定为前台用户
 })
 
-// 注册表单验证规则
+// 表单验证规则：仅对必填字段做非空校验
 const rules = reactive({
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
@@ -75,7 +80,7 @@ const rules = reactive({
   confirmPassword: [{ required: true, message: '请确认密码', trigger: 'blur' }],
 })
 
-// 注册表单提交
+/** 注册提交：表单校验通过后 POST /api/user/add，成功跳登录页 */
 const submitForm = async (formEl) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
@@ -97,6 +102,10 @@ const submitForm = async (formEl) => {
 }
 </script>
 <style scoped lang="scss">
+// ============================================================
+//  Register — 注册页表单样式
+//  窄卡片居中布局，字段较多，标签顶部对齐
+// ============================================================
 .register-container {
   width: 384px;
 
@@ -121,6 +130,7 @@ const submitForm = async (formEl) => {
     }
 
     .register-title {
+      // 注册标题与副标题
       text-align: center;
 
       h2 {
@@ -136,6 +146,7 @@ const submitForm = async (formEl) => {
   }
 
   .register-form {
+    // 注册表单区域：注册按钮通栏
     margin-top: 40px;
 
     .register-btn {

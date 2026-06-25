@@ -72,11 +72,17 @@ const renderedContent = computed(() => {
 </script>
 
 <style scoped>
+// ============================================================
+//  MarkdownRenderer — Markdown 转 HTML 渲染样式
+//  支持标题、段落、列表、代码块、引用、链接、分割线等基础排版
+// ============================================================
+
 .markdown-content {
   line-height: 1.6;
   color: inherit;
 }
 
+// -- 标题样式 ------------------------------------------------
 .markdown-content h1,
 .markdown-content h2,
 .markdown-content h3 {
@@ -105,6 +111,7 @@ const renderedContent = computed(() => {
   margin: 0.5em 0;
 }
 
+// -- 列表样式 ------------------------------------------------
 .markdown-content ul,
 .markdown-content ol {
   margin: 0.5em 0;
@@ -116,6 +123,7 @@ const renderedContent = computed(() => {
 }
 
 .markdown-content blockquote {
+  // 引用块：左侧边框高亮
   border-left: 4px solid #d1d5db;
   padding-left: 1em;
   margin: 1em 0;
@@ -126,17 +134,20 @@ const renderedContent = computed(() => {
   padding: 0.5em 1em;
 }
 
+// -- AI 消息专用主题色（蓝色系） ------------------------------
 .ai-markdown blockquote {
   border-left-color: #3b82f6;
   background: #eff6ff;
 }
 
 .markdown-content hr {
+  // 分割线
   border: none;
   border-top: 2px solid #e5e7eb;
   margin: 1.5em 0;
 }
 
+// -- 行内代码与代码块 ----------------------------------------
 .markdown-content code.inline-code {
   background: #f3f4f6;
   padding: 0.2em 0.4em;

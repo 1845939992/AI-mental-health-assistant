@@ -5,10 +5,13 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
+// 创建 Axios 实例，统一配置 baseURL 与超时时间
 const service = axios.create({
   baseURL: '/api',
   timeout: 5000
 })
+
+// 请求拦截器：在请求发送前自动注入本地存储的 token
 service.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token')
@@ -21,6 +24,8 @@ service.interceptors.request.use(
     return Promise.reject(error)
   }
 )
+
+// 响应拦截器：统一处理后端状态码
 service.interceptors.response.use(
   response => {
     const { data, config } = response

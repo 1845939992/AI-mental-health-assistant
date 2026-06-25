@@ -22,21 +22,29 @@
 </template>
 
 <script setup>
+/**
+ * 后台侧边栏组件
+ * 根据路由配置动态生成菜单项，支持折叠/展开（由 Pinia adminStore 控制）
+ * activeMenu 从当前路由 path 的最后一段提取，与菜单 index 匹配实现高亮
+ */
 import { useRouter, useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
-import { computed } from 'vue'// 计算属性
+import { computed } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
 const logoUrl = new URL('../assets/logo.png', import.meta.url).href
 
 const adminStore = useAdminStore()
-const isCollapse = computed(() => adminStore.isCollapse)// 计算属性，监听adminStore.isCollapse变化
-const activeMenu = computed(() => route.path.split('/').pop())// 从当前路由提取子路径，与菜单 index 匹配
+// 响应式折叠状态，由 Pinia store 驱动
+const isCollapse = computed(() => adminStore.isCollapse)
+// 从当前路由提取子路径，与菜单 index 匹配实现选中高亮
+const activeMenu = computed(() => route.path.split('/').pop())
 
+/** 点击菜单项：跳转到对应后台子页面 */
 const selectMenu = (path) => {
-const currentRouter = router.options.routes[0]
-router.push(`${currentRouter?.path ?? ''}/${path}`)
+  const currentRouter = router.options.routes[0]
+  router.push(`${currentRouter?.path ?? ''}/${path}`)
 }
 </script>
 
