@@ -254,6 +254,7 @@ const chatMessagesRef = ref(null) //聊天消息容器DOM引用
 const isUserScrollingUp = ref(false) //用户是否正在向上滚动查看历史消息
 let scrollLockTimer = null //定时器 ID,滚动锁定定时器，防止频繁触发
 let lastScrollTime = 0 //上次滚动时间戳，用于节流
+let activeStreamCtrl = null //当前活跃的SSE流请求AbortController，用于切换会话时中止
 
 //判断当前是否已滚动到底部（允许一定误差阈值）
 const isAtBottom = (threshold = 40) => {
@@ -475,6 +476,7 @@ const startAIResponse = (sessionId, message) => {
   messages.value.push(aiMessage)
   //调用流式对话接口，获取对话流
   const ctrl = new AbortController(); //创建一个AbortController实例，用于取消请求
+  activeStreamCtrl = ctrl
   fetchEventSource('/api/psychological-chat/stream', {
     method: 'POST',
     headers: {
@@ -504,13 +506,14 @@ const startAIResponse = (sessionId, message) => {
       //如果事件名为done，说明是完成消息，更新ai消息内容为完成提示
       if (eventName === 'done') {
         ctrl.abort()
+        activeStreamCtrl = null
         isAItyping.value = false
         getEmotionData(currentSession.value.sessionId)
         return
       }
       const payload = JSON.parse(raw)
       const ok = String(payload.code) === '200'
-      if (ok && payload.data.content && payload.data) {
+      if (ok && payload.data && payload.data.content) {
         aiMessage.content += payload.data.content
       }
       else if (!ok) {
@@ -518,10 +521,12 @@ const startAIResponse = (sessionId, message) => {
       }
     },
     onError: (error) => {
+      activeStreamCtrl = null
       handleError(error || '未知错误')
       throw error
     },
     onclose: () => {
+      activeStreamCtrl = null
       //开始情绪分析
       getEmotionData(currentSession.value.sessionId)
     }
@@ -542,6 +547,12 @@ const handleError = (error) => {
 
 //点击会话列表项，切换当前会话并获取会话消息
 const handleSessionClick = (session) => {
+  // 如果当前有正在进行的流式请求，先中止并清理状态，防止流式消息追加到新会话
+  if (activeStreamCtrl) {
+    activeStreamCtrl.abort()
+    activeStreamCtrl = null
+  }
+  isAItyping.value = false
   //获取会话消息
   getSessionMessages(session.id).then(res => {
     messages.value = res  //messages.senderType 1为用户，2为ai
