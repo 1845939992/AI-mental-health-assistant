@@ -118,8 +118,10 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 //  头部 — sticky 固定 + 入场滑入动画
 // ============================================================
 .navbar-container {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -290,7 +292,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   max-width: $max-width;
   margin: 0 auto;
-  padding: 32px 20px 48px;
+  padding: calc($nav-height + 32px) 20px 48px;
 
   animation: fadeUp 0.5s $transition-slow 0.2s both;
 }
@@ -327,7 +329,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .main-content {
-    padding: 28px 20px 44px;
+    padding: calc($nav-height + 28px) 20px 44px;
   }
 }
 
@@ -352,7 +354,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .main-content {
-    padding: 24px 16px 40px;
+    padding: calc($nav-height + 24px) 16px 40px;
   }
 }
 
@@ -388,7 +390,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .main-content {
-    padding: 20px 12px 32px;
+    padding: calc(56px + 20px) 12px 32px;
   }
 
   .footer-container {

@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   // 配置接口代理
-  server: {  
+  server: {
     proxy: {
       '/api': {
         target: 'http://159.75.169.224:1235',
