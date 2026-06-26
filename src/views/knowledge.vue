@@ -218,7 +218,7 @@ const handleDelete = (row) => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 /*  ============================================================
  Knowledge — 知识文章管理页样式
  页面头部 + 搜索表单 + 表格 + 分页 + 文章编辑弹窗

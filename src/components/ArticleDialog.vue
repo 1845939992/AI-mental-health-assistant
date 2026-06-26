@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    :title="isEdit ? '编辑文章' : '查看文章详情'"
-    :model-value="modelValue"
-    @close="handleClose"
-    width="50%"
-  >
+  <el-dialog :title="isEdit ? '编辑文章' : '查看文章详情'" :model-value="modelValue" @close="handleClose" width="50%">
     <el-form :model="formData" :rules="formRules" ref="formRef" label-width="120px">
       <el-form-item label="文章标题" prop="title">
         <el-input type="primary" v-model="formData.title" placeholder="请输入文章标题" maxlength="20" clearable />
@@ -15,46 +10,40 @@
         </el-select>
       </el-form-item>
       <el-form-item label="文章摘要" prop="summary">
-        <el-input type="textarea" v-model="formData.summary" placeholder="请输入文章摘要(可选)" maxlength="1000" show-word-limit clearable />
+        <el-input type="textarea" v-model="formData.summary" placeholder="请输入文章摘要(可选)" maxlength="1000" show-word-limit
+          clearable />
       </el-form-item>
       <el-form-item label="标签" prop="tags">
-        <el-select  v-model="formData.tagArray" placeholder="请选择标签(可选)"
-                 multiple  filterable  allow-create script:width="100%" clearable> 
+        <el-select v-model="formData.tagArray" placeholder="请选择标签(可选)" multiple filterable allow-create
+          script:width="100%" clearable>
           <el-option v-for="item in commonTags" :key="item" :label="item" :value="item" />
         </el-select>
       </el-form-item>
-      
+
       <el-form-item label="封面图片" prop="coverImage">
         <div class="cover-upload">
-        <el-upload v-model="formData.coverImage" 
-                         action="#"
-                         :before-upload="beforeUpload"  
-                         :http-request="uploadAvatar"
-                         :show-file-list="false"
-                         accept="image/*">
-             <div v-if="!imgURL" class="cover-placeholder"><p>点击上传封面</p></div>
-             <img v-else :src="imgURL" alt="封面图片" class="cover-image"> 
-        </el-upload>
-             <div v-if="imgURL">
-               <el-button type="danger" @click="handleDeleteCover">删除</el-button>
-             </div>
+          <el-upload v-model="formData.coverImage" action="#" :before-upload="beforeUpload" :http-request="uploadAvatar"
+            :show-file-list="false" accept="image/*">
+            <div v-if="!imgURL" class="cover-placeholder">
+              <p>点击上传封面</p>
+            </div>
+            <img v-else :src="imgURL" alt="封面图片" class="cover-image">
+          </el-upload>
+          <div v-if="imgURL">
+            <el-button type="danger" @click="handleDeleteCover">删除</el-button>
+          </div>
         </div>
       </el-form-item>
       <el-form-item label="文章内容" prop="content">
-        <RichTextEditor 
-          v-model="formData.content" 
-          placeholder="请输入文章内容，支持富文本格式\n\n可以使用加粗、斜体、列表、标题等格式来丰富文章内容。"
-          :maxLength="5000"
-          @change="handleContentChange"
-          @create="handleEditorCreated"
-          min_height="400px"
-        />
+        <RichTextEditor v-model="formData.content" placeholder="请输入文章内容，支持富文本格式\n\n可以使用加粗、斜体、列表、标题等格式来丰富文章内容。"
+          :maxLength="5000" @change="handleContentChange" @create="handleEditorCreated" min_height="400px" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div>
         <el-button @click="handleClose">关闭</el-button>
-        <el-button type="primary" @click="handleSubmit" :loading="loading" :disabled="loading">{{ isEdit ? '更新' : '提交' }}</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="loading" :disabled="loading">{{ isEdit ? '更新' : '提交'
+          }}</el-button>
       </div>
     </template>
   </el-dialog>
@@ -84,11 +73,11 @@ const businessId = ref('')
 
 const formRules = {
   title: [{ required: true, message: '请输入文章标题', trigger: 'blur' },
-    { max: 20, message: '文章标题最多20个字符', trigger: 'blur' }
+  { max: 20, message: '文章标题最多20个字符', trigger: 'blur' }
   ],
   content: [{ required: true, message: '请输入文章内容', trigger: 'blur' },
-    { max: 5000, message: '文章内容最多5000个字符', trigger: 'blur' }
-  ], 
+  { max: 5000, message: '文章内容最多5000个字符', trigger: 'blur' }
+  ],
   coverImage: [{ required: true, message: '请输入文章封面', trigger: 'blur' }],
   categoryId: [{ required: true, message: '请选择文章分类', trigger: 'change' }],
   summary: [{ required: false, message: '请输入文章摘要', trigger: 'blur' }],
@@ -96,12 +85,12 @@ const formRules = {
 }
 const formRef = ref(null)
 const commonTags = [
-'情绪管理', '焦虑', '抑郁', '压力', 
-'睡眠', '冥想', '正念', '放松', '心理健康', 
-'自我成长', '人际关系', '工作压力', '学习方法', '生活技巧'
-  ]
+  '情绪管理', '焦虑', '抑郁', '压力',
+  '睡眠', '冥想', '正念', '放松', '心理健康',
+  '自我成长', '人际关系', '工作压力', '学习方法', '生活技巧'
+]
 
-const emit = defineEmits(['update:modelValue','success'])
+const emit = defineEmits(['update:modelValue', 'success'])
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -125,15 +114,15 @@ watch(() => formData.value.tagArray, (val) => {
 //上传封面图片前的校验
 const beforeUpload = (file) => {
   //只能是JPG/PNG格式，且大小不能超过50MB
-    const isJPG = file.type === 'image/jpeg'
-    const isPNG = file.type === 'image/png'
-    const isLt50M = file.size / 1024 / 1024 < 50
-    if ((!isJPG && !isPNG) || !isLt50M) {
-      ElMessage.error('上传图片只能是 JPG/PNG 格式，且大小不能超过50MB!')
-      return false
-    }
-    return true
+  const isJPG = file.type === 'image/jpeg'
+  const isPNG = file.type === 'image/png'
+  const isLt50M = file.size / 1024 / 1024 < 50
+  if ((!isJPG && !isPNG) || !isLt50M) {
+    ElMessage.error('上传图片只能是 JPG/PNG 格式，且大小不能超过50MB!')
+    return false
   }
+  return true
+}
 
 //上传封面图片
 const uploadAvatar = async ({ file }) => {
@@ -204,14 +193,14 @@ const handleSubmit = () => {
     } else {
       submitData.id = businessId.value
       createArticle(submitData).then(res => {
-       ElMessage.success('文章创建成功')
-       loading.value = false
-       emit('success')
-       handleClose()
-     }).catch(error => {
-       ElMessage.error(error?.msg || '文章创建失败，请重试')
-     }).finally(() => {
-     })
+        ElMessage.success('文章创建成功')
+        loading.value = false
+        emit('success')
+        handleClose()
+      }).catch(error => {
+        ElMessage.error(error?.msg || '文章创建失败，请重试')
+      }).finally(() => {
+      })
     }
   })
 }
@@ -251,17 +240,17 @@ watch(() => props.article, (newVal) => {
 
 </script>
 
-<style scoped>
-// ============================================================
-//  ArticleDialog — 文章编辑/详情弹窗样式
-//  封面上传占位区、预览图、弹窗主体间距
-// ============================================================
+<style lang="scss" scoped>
+/* ============================================================
+ *  ArticleDialog — 文章编辑/详情弹窗样式
+ *  封面上传占位区、预览图、弹窗主体间距
+ * ============================================================ */
 
 .el-dialog__body {
   padding: 20px;
 }
 
-// -- 封面上传区域 -------------------------------------------
+/* -- 封面上传区域 ------------------------------------------- */
 .cover-placeholder {
   width: 200px;
   height: 120px;
@@ -272,6 +261,7 @@ watch(() => props.article, (newVal) => {
   color: #8b949e;
   background: #f6f8fa;
 }
+
 .cover-image {
   width: 200px;
   height: 120px;

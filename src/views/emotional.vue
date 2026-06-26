@@ -309,7 +309,7 @@ const getMoodTagType = (tag) => {
   return 'info' // 无数据时默认信息色
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 // ============================================================
 //  Emotional — 情绪日志管理页样式
 //  表格列表 + 详情弹窗（el-descriptions 分块展示）

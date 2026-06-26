@@ -35,6 +35,10 @@ service.interceptors.response.use(
       return data.data
     }
     if (code === '-1') {
+      // 注册接口的 -1 业务错误交给页面自行处理，不清 token 不跳转
+      if (config.url?.includes('/user/add')) {
+        return Promise.reject(data)
+      }
       if (!config.url?.includes('/login')) {
         ElMessage.error(data.msg || '登录过期，请重新登录')
         localStorage.removeItem('token')

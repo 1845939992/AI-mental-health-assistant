@@ -74,7 +74,7 @@
         </div>
       </div>
       <!-- 会话列表 -->
-      <div class="session-history">
+      <div class="session-history" v-if="sessionList.length">
         <h4 class="section-title">会话列表</h4>
         <div class="session-list">
           <div class="session-item" v-for="(session, index) in sessionList" :key="session.id"
@@ -106,11 +106,8 @@
                 </div>
               </div>
               <div class="session-actions">
-                <el-button text type="danger" size="small" @click.stop="handleDeleteSession(session.id)">
-                  <el-icon>
-                    <DeleteFilled />
-                  </el-icon>
-                </el-button>
+                <el-button type="danger" size="small" :icon="DeleteFilled" circle
+                  @click.stop="handleDeleteSession(session.id)" class="delete-session-btn" />
               </div>
             </div>
           </div>
@@ -568,7 +565,7 @@ const getSessionPage = () => {
     pageNum: 1,
     pageSize: 10,
   }).then(res => {
-    sessionList.value = res.records
+    sessionList.value = res.records || []
   })
 }
 
@@ -579,6 +576,10 @@ const handleDeleteSession = (sessionId) => {
     ElMessage.success('删除成功')
     //删除成功后，更新会话列表
     getSessionPage()
+    // 如果删除的是当前正在查看的会话，清空聊天区回到新建对话状态
+    if (currentSession.value && currentSession.value.sessionId === 'session_' + sessionId) {
+      createNewSession()
+    }
   })
 }
 
@@ -842,9 +843,22 @@ onUnmounted(() => {
 
             .session-actions {
               position: absolute;
-              top: 15%;
-              right: -2px;
+              top: 50%;
+              right: 8px;
               transform: translateY(-50%);
+
+              .delete-session-btn {
+                transition: all 0.25s ease;
+
+                &:hover {
+                  transform: scale(1.1);
+                  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+                }
+
+                &:active {
+                  transform: scale(0.95);
+                }
+              }
             }
           }
         }
@@ -1310,25 +1324,6 @@ onUnmounted(() => {
           }
         }
 
-        &.user-message {
-          flex-direction: row-reverse;
-
-          .message-avatar {
-            background: linear-gradient(135deg, #6b7280, #4b5563);
-            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-          }
-
-          .message-content {
-            align-items: flex-end;
-
-            .message-bubble {
-              background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-              color: white;
-              border: none;
-            }
-          }
-        }
-
         &.welcome-message {
           animation: welcome-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
@@ -1393,6 +1388,25 @@ onUnmounted(() => {
             font-size: 12px;
             color: #999;
             margin-top: 4px;
+          }
+        }
+
+        &.user-message {
+          flex-direction: row-reverse;
+
+          .message-avatar {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+          }
+
+          .message-content {
+            align-items: flex-end;
+
+            .message-bubble {
+              background: linear-gradient(135deg, #fb923c 0%, #f59e0b 40%, #f472b6 80%, #fb923c 100%);
+              color: white;
+              border: none;
+            }
           }
         }
       }
