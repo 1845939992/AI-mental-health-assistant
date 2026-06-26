@@ -27,7 +27,7 @@
         <div class="garden-header">
           <div class="garden-title">情绪花园</div>
           <div class="emotion-info">
-            <div class="emotion-name">{{ currentEmotion.primaryEmotion }}</div>
+            <div class="emotion-name">{{ getEmotionLabel(currentEmotion.primaryEmotion) }}</div>
             <div class="emotion-score"> {{ currentEmotion.emotionScore }}</div>
           </div>
           <div class="warm-tips">
@@ -324,6 +324,48 @@ watch(
 // onmessage在循环中实时更新消息数组，正好通过messages的响应式效果显示在聊天主区域中，
 // 从而实现一个字一个字往外蹦的流式效果。其他部分的代码大多是传递参数处理错误以及判断是否是历史会话消息
 
+// 情绪英文到中文的映射表，兼容后端可能返回的多种情绪值
+const emotionMap = {
+  happy: '开心',
+  joy: '喜悦',
+  excited: '兴奋',
+  content: '满足',
+  sad: '悲伤',
+  unhappy: '难过',
+  depressed: '沮丧',
+  angry: '愤怒',
+  furious: '狂怒',
+  irritated: '烦躁',
+  anxious: '焦虑',
+  nervous: '紧张',
+  worried: '担忧',
+  fear: '恐惧',
+  scared: '害怕',
+  surprised: '惊讶',
+  neutral: '中性',
+  calm: '平静',
+  relaxed: '放松',
+  tired: '疲惫',
+  bored: '无聊',
+  disgust: '厌恶',
+  contempt: '轻蔑',
+  lonely: '孤独',
+  confused: '困惑',
+  embarrassed: '尴尬',
+  jealous: '嫉妒',
+  guilty: '内疚',
+  shame: '羞耻',
+  love: '喜爱',
+  positive: '积极',
+  negative: '消极'
+}
+
+// 获取中文化的情绪名称，未知情绪返回原值
+const getEmotionLabel = (emotion) => {
+  if (!emotion) return '未知'
+  return emotionMap[emotion.toString().toLowerCase()] || emotion
+}
+
 //获取会话情绪分析结果
 const getEmotionData = async (sessionId) => {
   const id = sessionId.toString().startsWith('session_') ? sessionId : 'session_' + sessionId
@@ -549,7 +591,7 @@ const handleError = (error) => {
 const handleSessionClick = (session) => {
   // 如果当前有正在进行的流式请求，先中止并清理状态，防止流式消息追加到新会话
   if (activeStreamCtrl) {
-    activeStreamCtrl.abort()
+    activeStreamCtrl.abort() //中止当前流式请求
     activeStreamCtrl = null
   }
   isAItyping.value = false
