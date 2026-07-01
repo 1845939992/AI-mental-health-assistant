@@ -104,8 +104,24 @@ const submitForm = async () => {
 <style scoped lang="scss">
 // ============================================================
 //  Login — 登录页表单样式
-//  窄卡片居中布局，包含返回首页、标题、表单、底部链接
+//  窄卡片居中布局，包含返回首页、标题、表单卡片、底部链接
+//  统一按钮交互 + 表单淡入动画 + 输入框焦点光晕
 // ============================================================
+
+$primary: #6366F1;
+
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .container {
   width: 384px;
 
@@ -113,7 +129,7 @@ const submitForm = async () => {
     text-align: center;
 
     .back-home {
-      margin-bottom: 60px;
+      margin-bottom: 48px;
       text-align: left;
       display: flex;
       align-items: center;
@@ -123,7 +139,7 @@ const submitForm = async () => {
       transition: color 0.2s, transform 0.2s;
 
       &:hover {
-        color: #4A90E2;
+        color: $primary;
         transform: translateX(-3px);
       }
 
@@ -133,10 +149,16 @@ const submitForm = async () => {
     }
 
     .title-text {
-      // 登录标题与副标题
+      text-align: center;
+
       h2 {
         font-size: 36px;
         margin-bottom: 10px;
+        /* 靛蓝紫渐变标题，与全局主题统一 */
+        background: linear-gradient(135deg, $primary 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       p {
@@ -147,17 +169,63 @@ const submitForm = async () => {
   }
 
   .form-container {
-    // 表单区域：登录按钮通栏
-    margin-top: 40px;
+    margin-top: 36px;
+    /* 半透明卡片背景，增强视觉层次 */
+    padding: 32px 28px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+    /* 表单淡入动画 */
+    animation: formFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    /* 表单项间距优化 */
+    :deep(.el-form-item) {
+      margin-bottom: 22px;
+    }
+
+    /* 输入框焦点：靛蓝光晕边框 */
+    :deep(.el-input__wrapper) {
+      transition: box-shadow 0.3s ease;
+      border-radius: 8px;
+
+      &.is-focus {
+        box-shadow: 0 0 0 1px $primary inset;
+      }
+    }
 
     .btn {
-      margin-top: 40px;
+      margin-top: 32px;
       width: 100%;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      }
+
+      &:active {
+        transform: translateY(0) scale(0.97);
+        transition: transform 0.1s ease;
+      }
     }
 
     .footer {
-      padding: 20px 0;
+      padding: 18px 0 4px;
       text-align: center;
+
+      a {
+        color: $primary;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #4F46E5;
+          text-decoration: underline;
+        }
+      }
     }
   }
 }

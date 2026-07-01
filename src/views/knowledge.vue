@@ -34,21 +34,23 @@
       <el-table-column prop="readCount" label="阅读量" width="200"> </el-table-column>
       <el-table-column prop="updatedAt" label="发布时间" width="200"> </el-table-column>
       <!-- @vue-generic {User} -->
-      <el-table-column label="操作" width="200" fixed="right">
+      <el-table-column label="操作" width="175" fixed="right">
         <template #default="scope">
-          <el-button size="small" text type="primary" @click="handleEdit(scope.row)">
-            编辑
-          </el-button>
-          <el-button @click="handlePublish(scope.row)" v-if="scope.row.status === 0 || scope.row.status === 2"
-            size="small" type="success">
-            发布
-          </el-button>
-          <el-button @click="handleUnPublish(scope.row)" v-if="scope.row.status === 1" size="small" type="warning">
-            下线
-          </el-button>
-          <el-button size="small" type="danger" @click="handleDelete(scope.row)">
-            删除
-          </el-button>
+          <div class="action-buttons">
+            <el-button size="small" type="primary" @click="handleEdit(scope.row)">
+              编辑
+            </el-button>
+            <el-button @click="handlePublish(scope.row)" v-if="scope.row.status === 0 || scope.row.status === 2"
+              size="small" type="success">
+              发布
+            </el-button>
+            <el-button @click="handleUnPublish(scope.row)" v-if="scope.row.status === 1" size="small" type="warning">
+              下线
+            </el-button>
+            <el-button size="small" type="danger" @click="handleDelete(scope.row)">
+              删除
+            </el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -219,8 +221,120 @@ const handleDelete = (row) => {
 </script>
 
 <style lang="scss" scoped>
-/*  ============================================================
+/* ============================================================
  Knowledge — 知识文章管理页样式
  页面头部 + 搜索表单 + 表格 + 分页 + 文章编辑弹窗
  ============================================================ */
+
+/* -- 表格统一样式：斑马纹 + 表头背景 -- */
+:deep(.el-table) {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .el-table__header-wrapper {
+    th {
+      background: #F9FAFB;
+      color: #374151;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 2px solid #E5E7EB;
+    }
+  }
+
+  /* 斑马纹 */
+  .el-table__body-wrapper {
+    .el-table__row--striped {
+      td {
+        background: #FAFBFC;
+      }
+    }
+  }
+
+  /* 行悬浮 */
+  .el-table__body tr:hover>td {
+    background: #EEF2FF !important;
+  }
+
+  /* 单元格内边距 */
+  td,
+  th {
+    padding: 14px 12px;
+  }
+}
+
+/* -- 操作按钮容器：水平排列，等间距，统一大小 -- */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 4px;
+
+  .el-button {
+    min-width: 36px;
+    height: 24px;
+    padding: 0 6px;
+    font-size: 12px;
+    border-radius: 4px;
+  }
+}
+
+/* -- 操作按钮：统一悬浮交互效果 -- */
+:deep(.el-button) {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  /* 危险按钮悬浮阴影 */
+  &.el-button--danger:hover {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  }
+
+  /* 成功按钮悬浮阴影 */
+  &.el-button--success:hover {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  }
+
+  /* 警告按钮悬浮阴影 */
+  &.el-button--warning:hover {
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+  }
+}
+
+/* -- 分页样式 -- */
+:deep(.el-pagination) {
+  margin-top: 20px;
+  justify-content: flex-end;
+
+  .el-pager li {
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &.is-active {
+      background: #6366F1;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    &:hover:not(.is-active) {
+      color: #6366F1;
+    }
+  }
+
+  .btn-prev,
+  .btn-next {
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #6366F1;
+    }
+  }
+}
 </style>

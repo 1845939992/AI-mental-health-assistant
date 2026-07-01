@@ -315,17 +315,129 @@ const getMoodTagType = (tag) => {
 //  表格列表 + 详情弹窗（el-descriptions 分块展示）
 // ============================================================
 
+// -- 表格统一样式：斑马纹 + 表头背景 --
+:deep(.el-table) {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .el-table__header-wrapper {
+    th {
+      background: #F9FAFB;
+      color: #374151;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 2px solid #E5E7EB;
+    }
+  }
+
+  .el-table__body tr:hover>td {
+    background: #EEF2FF !important;
+  }
+
+  td,
+  th {
+    padding: 14px 12px;
+  }
+}
+
+// -- 操作按钮 --
+:deep(.el-button) {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  &.el-button--danger:hover {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  }
+}
+
+// -- 分页 --
+:deep(.el-pagination) {
+  margin-top: 20px;
+  justify-content: flex-end;
+
+  .el-pager li {
+    border-radius: 6px;
+
+    &.is-active {
+      background: #6366F1;
+      color: #fff;
+    }
+
+    &:hover:not(.is-active) {
+      color: #6366F1;
+    }
+  }
+}
+
 // -- 详情弹窗主体：限制最大高度，分块展示用户信息 / 情绪状态 / AI 分析 / 建议 --
 .detail-body {
   max-height: 60vh;
   overflow-y: auto;
   padding-right: 4px;
 
+  /* 自定义滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 3px;
+  }
+
+  /* el-descriptions 间距优化 */
+  :deep(.el-descriptions) {
+    margin-bottom: 4px;
+
+    .el-descriptions__title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 12px;
+    }
+
+    .el-descriptions__label {
+      font-weight: 500;
+      color: #6B7280;
+    }
+
+    .el-descriptions__content {
+      color: #1F2937;
+    }
+  }
+
+  /* AI分析区：视觉层次 */
+  :deep(.el-descriptions) {
+    &:nth-child(5) {
+      // AI情绪分析结果块
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, transparent 100%);
+      border-radius: 8px;
+      padding: 8px;
+    }
+  }
+
   .section-title {
     font-size: 15px;
     font-weight: 600;
-    color: #374151;
-    margin: 16px 0 10px;
+    color: #1F2937;
+    margin: 18px 0 10px;
+    padding-left: 8px;
+    border-left: 3px solid #6366F1;
   }
 
   .diary-body {
@@ -334,25 +446,33 @@ const getMoodTagType = (tag) => {
     white-space: pre-wrap;
     word-break: break-all;
     font-size: 13px;
+    color: #374151;
   }
 
-  // -- 建议/风险描述文本框 --
+  // -- 建议/风险描述文本框：卡片化 --
   .suggestion-box {
-    padding: 10px 14px;
-    background: #f9fafb;
-    border-radius: 6px;
+    padding: 12px 16px;
+    background: #F9FAFB;
+    border-radius: 8px;
     color: #374151;
     font-size: 13px;
     line-height: 1.8;
     margin-bottom: 12px;
+    border: 1px solid #E5E7EB;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
 
     // 风险描述增加左侧橙色警示条
     &.risk-box {
-      border-left: 3px solid #e6a23c;
+      border-left: 3px solid #F97316;
+      background: #FFFBEB;
     }
   }
 
-  // -- 改善建议列表：自定义绿色圆点 --
+  // -- 改善建议列表：自定义靛蓝圆点 --
   .improvement-list {
     list-style: none;
     padding: 0;
@@ -360,7 +480,7 @@ const getMoodTagType = (tag) => {
 
     li {
       position: relative;
-      padding: 6px 0 6px 18px;
+      padding: 8px 0 8px 20px;
       color: #374151;
       font-size: 13px;
       line-height: 1.6;
@@ -369,11 +489,11 @@ const getMoodTagType = (tag) => {
         content: '';
         position: absolute;
         left: 4px;
-        top: 13px;
-        width: 5px;
-        height: 5px;
+        top: 15px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: #7ED321;
+        background: #6366F1;
       }
     }
   }

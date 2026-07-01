@@ -19,25 +19,45 @@ const props = defineProps({
   }
 })
 </script>
-<style  lang="scss" scoped>
+<style lang="scss" scoped>
 .page-head {
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 15px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 0 20px;
+  /* 柔和渐变背景，替代单调白底 */
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, rgba(99, 102, 241, 0.01) 50%, transparent 100%);
+  border-bottom: 1px solid #E5E7EB;
   margin-bottom: 20px;
+  border-radius: 8px 8px 0 0;
 }
+
 .page-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #303133;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1F2937;
+  /* 左侧色条装饰 */
+  padding-left: 16px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    border-radius: 0 4px 4px 0;
+    background: #6366F1;
+  }
 }
+
 .btn-accion {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
 }
 </style>

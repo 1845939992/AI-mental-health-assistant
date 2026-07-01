@@ -17,7 +17,7 @@
           <el-button type="primary" @click="handleLogout" class="logout-btn">退出登录</el-button>
         </template>
         <template v-else>
-          <router-link to="/auth/login"  class="nav-link nav-link--auth">
+          <router-link to="/auth/login" class="nav-link nav-link--auth">
             <el-button type="primary" size="small">登录</el-button>
           </router-link>
           <router-link to="/auth/register">
@@ -39,7 +39,7 @@
   </div>
 </template>
 <script setup>
-import { ref,onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { logout } from '@/api/asmin'
 
@@ -50,11 +50,11 @@ const isLoggedIn = ref(false)
 
 const handleLogout = () => {
   logout()
-  .then(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('userInfo')
-    router.push('/auth/login')
-  })
+    .then(() => {
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      router.push('/auth/login')
+    })
 }
 
 onMounted(() => {
@@ -70,37 +70,61 @@ onMounted(() => {
 // ============================================================
 
 // -- 设计令牌 -------------------------------------------------
-$nav-height:     64px;
-$max-width:      1200px;
-$color-primary:  #4A90E2;
-$color-text:     #1F2937;
-$color-muted:    #6B7280;
-$color-bg:       #FFFFFF;
-$color-border:   #F3F4F6;
-$transition:     0.2s ease;
+$nav-height: 64px;
+$max-width: 1200px;
+$color-primary: #6366F1;
+$color-text: #1F2937;
+$color-muted: #6B7280;
+$color-bg: #FFFFFF;
+$color-border: #F3F4F6;
+$transition: 0.2s ease;
 $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
 // ============================================================
 //  关键帧动画
 // ============================================================
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes underlineGrow {
-  from { transform: translateX(-50%) scaleX(0); }
-  to   { transform: translateX(-50%) scaleX(1); }
+  from {
+    transform: translateX(-50%) scaleX(0);
+  }
+
+  to {
+    transform: translateX(-50%) scaleX(1);
+  }
 }
 
 // ============================================================
@@ -170,7 +194,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   transition: box-shadow $transition-slow;
 
   .brand-link:hover & {
-    box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
   }
 }
 
@@ -191,7 +215,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   align-items: center;
   gap: 32px;
   flex-shrink: 0; // 导航区优先保持完整
-  min-width: 0;   // 允许内容截断
+  min-width: 0; // 允许内容截断
 
   // 高缩放级别时自动换行
   flex-wrap: wrap;
@@ -210,10 +234,21 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   // 各链接依次淡入
   animation: fadeUp 0.45s ease both;
 
-  &:nth-child(1) { animation-delay: 0.1s; }
-  &:nth-child(2) { animation-delay: 0.17s; }
-  &:nth-child(3) { animation-delay: 0.24s; }
-  &:nth-child(4) { animation-delay: 0.31s; }
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: 0.17s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.24s;
+  }
+
+  &:nth-child(4) {
+    animation-delay: 0.31s;
+  }
 
   &:hover {
     color: $color-primary;
@@ -257,29 +292,29 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.35);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
   }
 
   &:active {
     transform: translateY(0) scale(0.97);
-    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
     transition: transform 0.1s ease, box-shadow 0.1s ease;
   }
 }
 
 // 注册按钮同上
-.nav-section > a > .el-button {
+.nav-section>a>.el-button {
   transition: transform $transition-slow, box-shadow $transition-slow;
   animation: fadeUp 0.45s ease 0.38s both;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.35);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
   }
 
   &:active {
     transform: translateY(0) scale(0.97);
-    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
     transition: transform 0.1s ease, box-shadow 0.1s ease;
   }
 }
@@ -290,7 +325,6 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 .main-content {
   flex: 1;
   width: 100%;
-  max-width: $max-width;
   margin: 0 auto;
   padding: calc($nav-height + 32px) 20px 48px;
 
@@ -422,7 +456,7 @@ $transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .logout-btn,
-  .nav-section > a > .el-button {
+  .nav-section>a>.el-button {
     font-size: 12px;
   }
 }

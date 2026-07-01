@@ -1,12 +1,15 @@
 <template>
   <div class="knowledge-container">
-    <!-- 头部 -->
-    <div class="header-section animate-in stagger-1">
+    <!-- 头部：分层设计，图标 + 标题 + 功能说明 + 底部曲线过渡 -->
+    <div class="header-section">
+      <div class="header-bg-dots"></div>
       <div class="header-content">
-        <div class="header-icon">📖</div>
-        <div class="header-text">
+        <div class="header-icon-circle">
+          <span class="header-icon">📖</span>
+        </div>
+        <div class="header-text-group">
           <h2>心理健康知识库</h2>
-          <p>探索专业、温暖的心理科普内容</p>
+          <p class="header-desc">精选专业心理科普文章，为您提供科学、温暖的心理健康知识与疗愈方法</p>
         </div>
       </div>
     </div>
@@ -282,28 +285,108 @@ onMounted(() => {
   }
 }
 
-// -- 设计变量与页面容器：柔和、专业的心理健康主题色 --
-/* 设计变量：柔和、专业的心理健康主题色 */
+/* 头部流动渐变（与情绪日记统一） */
+@keyframes header-shimmer {
+  0% {
+    background-position: 0% 0;
+  }
+
+  50% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+/* 图标圆形容器浮动（与情绪日记统一） */
+@keyframes icon-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* 头部入场下滑动画 */
+@keyframes header-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes header-content-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 头部浮动：使用 transform(GPU 合成层)替代 top(Layout)，零重排 */
+@keyframes header-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes header-content-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// -- 设计变量与页面容器：紫粉金统一色彩体系（与情绪日记协调） --
+/* 设计变量：紫粉金统一色彩体系 */
 .knowledge-container {
-  --primary: #6366f1;
-  --primary-light: #818cf8;
+  --primary: #8b5cf6;
+  --primary-light: #a78bfa;
+  --primary-deep: #7c3aed;
   --accent: #f59e0b;
   --accent-warm: #f97316;
+  --pink: #ec4899;
   --text-main: #1f2937;
   --text-secondary: #4b5563;
   --text-muted: #9ca3af;
   --bg-soft: #f8fafc;
   --bg-card: #ffffff;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+  --shadow-md: 0 8px 24px rgba(139, 92, 246, 0.08);
+  --shadow-lg: 0 16px 40px rgba(139, 92, 246, 0.12);
   --radius: 16px;
 
   min-height: 100vh;
+  /* 统一色彩：紫粉金径向光斑 + 线性渐变 */
   background:
-    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 35%),
-    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 35%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(236, 72, 153, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 90% 85%, rgba(245, 158, 11, 0.05) 0%, transparent 40%),
+    linear-gradient(180deg, #faf5ff 0%, #fdf2f8 30%, #fff7ed 70%, #f8fafc 100%);
 
   .animate-in {
     opacity: 0;
@@ -332,65 +415,118 @@ onMounted(() => {
     }
   }
 
-  // -- 头部区域：大气渐变 + 微光纹理 --
-  /* 头部：大气渐变 + 微光纹理 */
+  // -- 头部区域：分层设计，紫色强调（与情绪日记的粉色强调形成差异） --
+  /* 头部：分层设计 + 点阵纹理解码 + 图标圆形容器 + 底部波浪曲线过渡 */
   .header-section {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    background:
-      linear-gradient(135deg, rgba(99, 102, 241, 0.95) 0%, rgba(139, 92, 246, 0.92) 50%, rgba(245, 158, 11, 0.88) 100%),
-      radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+    /* 与内容区同宽，不再全宽铺满 */
+    width: 100%;
+    max-width: 1200px;
+    margin: -34px auto 0;
+    box-sizing: border-box;
+    will-change: transform;
+    /* 浮动动画 GPU 合成层提示 */
+    /* 紫色强调的流动渐变（与情绪日记的粉色强调形成差异） */
+    background: linear-gradient(135deg,
+        #6366f1 0%,
+        #8b5cf6 25%,
+        #a78bfa 50%,
+        #8b5cf6 75%,
+        #6366f1 100%);
+    background-size: 200% 200%;
+    animation: header-shimmer 12s ease-in-out infinite, header-slide-down 0.7s cubic-bezier(0.22, 1, 0.36, 1) both, header-float 4s ease-in-out infinite 0.7s;
     color: white;
-    padding: 40px 48px;
-    position: relative;
+    padding: 22px 48px 22px 60px;
     overflow: hidden;
 
-    &::before {
-      content: '';
+    /* 多层阴影：立体悬浮效果 */
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.10),
+      0 2px 8px rgba(0, 0, 0, 0.06),
+      0 16px 48px rgba(139, 92, 246, 0.28);
+
+    /* 点阵背景纹理解码层 */
+    .header-bg-dots {
       position: absolute;
       inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
       pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+        radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 80% 65%, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        radial-gradient(circle at 25% 70%, rgba(255, 255, 255, 0.08) 2px, transparent 2px);
+      background-size:
+        90px 90px,
+        110px 110px,
+        100px 100px,
+        130px 130px;
+      opacity: 0.5;
     }
 
     .header-content {
       position: relative;
+      z-index: 1;
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
       max-width: 1200px;
       margin: 0 auto;
+      animation: header-content-fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
 
-      .header-icon {
-        width: 64px;
-        height: 64px;
+      /* 图标圆形容器：毛玻璃 + 浮动动画 */
+      .header-icon-circle {
+        width: 52px;
+        height: 52px;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px;
+        border-radius: 50%;
         background: rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(8px);
-        border-radius: 18px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(12px);
+        box-shadow:
+          0 4px 16px rgba(0, 0, 0, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        animation: icon-float 3s ease-in-out infinite;
+
+        .header-icon {
+          font-size: 26px;
+          line-height: 1;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
       }
 
-      .header-text {
+      /* 标题组：标题 + 功能说明文字 */
+      .header-text-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
         h2 {
           margin: 0;
-          font-size: 28px;
-          font-weight: 700;
-          letter-spacing: -0.02em;
+          font-size: 22px;
+          font-weight: 800;
+          line-height: 1.2;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+          letter-spacing: -0.01em;
         }
 
-        p {
-          margin: 6px 0 0;
-          font-size: 15px;
-          opacity: 0.85;
+        /* 功能说明：帮助用户理解页面用途和操作方式 */
+        .header-desc {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.5;
+          opacity: 0.9;
           font-weight: 400;
+          max-width: 360px;
         }
       }
     }
+
+    /* 底部波浪曲线：平滑过渡到内容区 */
   }
+
+  /* 整体圆角：底部大弧度减少棱角，平滑过渡到内容区 */
+  border-radius: 60px;
 
   // -- 内容区：左侧推荐栏 + 右侧文章列表 --
   .content {
@@ -407,20 +543,41 @@ onMounted(() => {
       background: var(--bg-card);
       border-radius: var(--radius);
       box-shadow: var(--shadow-md);
-      padding: 22px;
+      padding: 24px;
       height: fit-content;
       position: sticky;
       top: 24px;
-      border: 1px solid rgba(226, 232, 240, 0.8);
+      border: 1px solid rgba(139, 92, 246, 0.1);
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+
+      &:hover {
+        border-color: rgba(139, 92, 246, 0.2);
+        box-shadow: 0 12px 32px rgba(139, 92, 246, 0.1);
+      }
 
       .section-title {
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 700;
         color: var(--text-main);
         margin-bottom: 18px;
         display: flex;
         align-items: center;
         gap: 8px;
+        /* 左侧渐变装饰条 */
+        padding-left: 14px;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 18px;
+          border-radius: 2px;
+          background: linear-gradient(180deg, #8b5cf6 0%, #ec4899 100%);
+        }
 
         .el-icon {
           color: var(--accent);
@@ -451,10 +608,10 @@ onMounted(() => {
             box-shadow 0.25s ease;
 
           &:hover {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            border-color: rgba(245, 158, 11, 0.25);
+            background: linear-gradient(135deg, #faf5ff 0%, #fef3c7 100%);
+            border-color: rgba(139, 92, 246, 0.2);
             transform: translateX(4px);
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
 
             .rank-badge {
               transform: scale(1.08);
@@ -536,12 +693,14 @@ onMounted(() => {
           transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
           box-shadow 0.3s ease,
           border-color 0.3s ease;
-        border: 1px solid rgba(226, 232, 240, 0.6);
+        border: 1px solid rgba(139, 92, 246, 0.08);
 
         &:hover {
           transform: translateY(-4px);
           box-shadow: var(--shadow-lg);
-          border-color: rgba(99, 102, 241, 0.2);
+          border-color: rgba(139, 92, 246, 0.25);
+          /* 底部渐变光晕 */
+          box-shadow: 0 12px 32px rgba(139, 92, 246, 0.1), 0 4px 8px rgba(236, 72, 153, 0.06);
 
           .cover-image {
             transform: scale(1.04);
@@ -558,7 +717,7 @@ onMounted(() => {
           border-radius: 12px;
           overflow: hidden;
           flex-shrink: 0;
-          background: linear-gradient(135deg, #e0e7ff 0%, #fef3c7 100%);
+          background: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
           box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 
           .cover-image {
@@ -575,7 +734,7 @@ onMounted(() => {
             align-items: center;
             justify-content: center;
             color: var(--primary-light);
-            background: linear-gradient(135deg, #eef2ff 0%, #fff7ed 100%);
+            background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 100%);
           }
         }
 
@@ -636,7 +795,7 @@ onMounted(() => {
               transition: color 0.2s ease;
 
               .el-icon {
-                color: var(--primary-light);
+                color: #a78bfa;
               }
 
               &:hover {
@@ -671,9 +830,9 @@ onMounted(() => {
         }
 
         &.is-active {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+          background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
           color: white;
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
         }
       }
 
@@ -755,7 +914,7 @@ onMounted(() => {
         width: 176px;
         height: 120px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+        background: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
         flex-shrink: 0;
       }
 
@@ -813,6 +972,159 @@ onMounted(() => {
       height: 22px;
       border-radius: 8px;
       background: #e2e8f0;
+    }
+  }
+}
+
+/* ==================== RESPONSIVE — 平板 ==================== */
+@media (max-width: 991px) {
+  .knowledge-container {
+    .header-section {
+      padding: 20px 24px 18px 52px;
+      border-radius: 48px;
+
+      .header-content {
+        gap: 12px;
+
+        .header-icon-circle {
+          width: 44px;
+          height: 44px;
+
+          .header-icon {
+            font-size: 22px;
+          }
+        }
+
+        .header-text-group {
+          h2 {
+            font-size: 20px;
+          }
+
+          .header-desc {
+            font-size: 12px;
+            max-width: 280px;
+          }
+        }
+      }
+    }
+
+    .content {
+      width: auto;
+      flex-direction: column;
+
+      .recommend-section {
+        width: 100%;
+        position: static;
+      }
+    }
+  }
+}
+
+/* ==================== RESPONSIVE — 手机 ==================== */
+@media (max-width: 767px) {
+  .knowledge-container {
+    .header-section {
+      padding: 18px 16px 14px 42px;
+      border-radius: 36px;
+
+      .header-content {
+        gap: 10px;
+
+        .header-icon-circle {
+          width: 38px;
+          height: 38px;
+
+          .header-icon {
+            font-size: 18px;
+          }
+        }
+
+        .header-text-group {
+          h2 {
+            font-size: 18px;
+          }
+
+          .header-desc {
+            font-size: 12px;
+            max-width: none;
+          }
+        }
+      }
+    }
+
+    .content {
+      padding: 0 10px;
+
+      .article-list .article-item {
+        flex-direction: column;
+
+        .cover-wrapper {
+          width: 100%;
+          height: 160px;
+        }
+      }
+    }
+  }
+}
+
+/* ==================== RESPONSIVE — 小手机 ==================== */
+@media (max-width: 480px) {
+  .knowledge-container {
+    .header-section {
+      padding: 14px 12px 12px 34px;
+      border-radius: 28px;
+
+      .header-content {
+        .header-icon-circle {
+          width: 32px;
+          height: 32px;
+
+          .header-icon {
+            font-size: 16px;
+          }
+        }
+
+        .header-text-group {
+          h2 {
+            font-size: 16px;
+          }
+
+          .header-desc {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ==================== 高分辨率大屏优化 ==================== */
+@media (min-width: 1600px) {
+  .knowledge-container {
+    .header-section {
+      padding: 28px 64px 28px 68px;
+      border-radius: 60px;
+
+      .header-content {
+        .header-icon-circle {
+          width: 60px;
+          height: 60px;
+
+          .header-icon {
+            font-size: 30px;
+          }
+        }
+
+        .header-text-group {
+          h2 {
+            font-size: 26px;
+          }
+
+          .header-desc {
+            font-size: 14px;
+          }
+        }
+      }
     }
   }
 }

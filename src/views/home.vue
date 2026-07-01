@@ -45,7 +45,7 @@ const logoUrl = ref(new URL('../assets/logo.png', import.meta.url).href)
 // ============================================================
 
 // -- 设计令牌 -------------------------------------------------
-$color-primary: #4A90E2;
+$color-primary: #6366F1;
 $color-text: #1F2937;
 $color-muted: #6B7280;
 $color-accent: #6366F1;
@@ -177,7 +177,7 @@ $transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(74, 144, 226, 0.3);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
   }
 
   &:active {
@@ -192,7 +192,7 @@ $transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: transparent;
 
   &:hover {
-    background: rgba(74, 144, 226, 0.06);
+    background: rgba(99, 102, 241, 0.06);
     color: $color-primary;
   }
 }

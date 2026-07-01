@@ -3,12 +3,12 @@
 // 详见 API_DOCS.md
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '@/router'
 
 // 创建 Axios 实例，统一配置 baseURL 与超时时间
+// 配置项优先从环境变量读取，未配置则使用默认值以保证兼容性
 const service = axios.create({
-  baseURL: '/api',
-  timeout: 5000
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 5000
 })
 
 // 请求拦截器：在请求发送前自动注入本地存储的 token

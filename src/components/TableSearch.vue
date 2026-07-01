@@ -2,28 +2,25 @@
   <el-form ref="ruleFormRef" :model="formData">
     <el-row :gutter="24">
       <template v-for="item in formItemAttr" :key="item.prop">
-      <el-col v-bind="item.col">
-    <el-form-item  :label="item.label" :span="item.col" :prop="item.prop">
-      <component
-        :model-value="formData[item.prop] ?? ''"
-        :is="isComp(item.comp)"
-        :placeholder="item.placeholder"
-        @update:model-value="(val) => formData[item.prop] = val"
-      >
-        <template v-if="item.comp === 'select'">
-          <el-option label="全部" value=""></el-option>
-          <el-option v-for="option in item.options" :key="option.value" :label="option.label" :value="option.value"></el-option>
-        </template>
-      </component>
-    </el-form-item>
-    </el-col>
-    </template>
+        <el-col v-bind="item.col">
+          <el-form-item :label="item.label" :span="item.col" :prop="item.prop">
+            <component :model-value="formData[item.prop] ?? ''" :is="isComp(item.comp)" :placeholder="item.placeholder"
+              @update:model-value="(val) => formData[item.prop] = val">
+              <template v-if="item.comp === 'select'">
+                <el-option label="全部" value=""></el-option>
+                <el-option v-for="option in item.options" :key="option.value" :label="option.label"
+                  :value="option.value"></el-option>
+              </template>
+            </component>
+          </el-form-item>
+        </el-col>
+      </template>
     </el-row>
     <el-row>
-    <el-form-item>
-      <el-button type="primary" @click="handleSearch">查询</el-button>
-      <el-button @click="handleReset(ruleFormRef)">重置</el-button>
-    </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button @click="handleReset(ruleFormRef)" class="reset-btn">重置</el-button>
+      </el-form-item>
     </el-row>
   </el-form>
 </template>
@@ -75,4 +72,38 @@ const isComp = (comp) => {
   }[comp] ?? comp
 }
 </script>
+<style lang="scss" scoped>
+/* -- 搜索表单卡片化：白色背景 + 圆角 + 阴影 -- */
+.el-form {
+  padding: 20px 20px 4px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
 
+/* 查询按钮：统一交互效果 */
+:deep(.el-button--primary) {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}
+
+/* 重置按钮：增加边框 */
+.reset-btn {
+  border: 1px solid #D1D5DB;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #6366F1;
+    color: #6366F1;
+  }
+}
+</style>

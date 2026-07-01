@@ -12,4 +12,9 @@
 
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+/* 全局防止 100vw 全宽元素产生水平滚动条 */
+div {
+  overflow-x: hidden;
+}
+</style>
