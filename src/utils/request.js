@@ -11,9 +11,23 @@ const service = axios.create({
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 5000
 })
 
-// 请求拦截器：在请求发送前自动注入本地存储的 token
+// 存储当前进行中的请求，key 为 "method:url"
+// 用于防止用户重复点击导致同一个接口短时间内发出多次请求
+const pendingMap = new Map()   //创建一个 Map 实例，用于存储当前进行中的请求
+
+// 请求拦截器：取消重复请求 + 自动注入本地存储的 token
 service.interceptors.request.use(
   config => {
+    // --- 重复请求取消：同一个接口有旧请求在进行则取消旧的 ---
+    const key = `${config.method}:${config.url}`
+    if (pendingMap.has(key)) {   //判断 key 是否存在，返回 boolean
+      pendingMap.get(key).abort()  //.abort()调用 AbortController的方法，向关联的 HTTP 请求发出"取消"信号。
+    }
+    const controller = new AbortController()
+    config.signal = controller.signal
+    pendingMap.set(key, controller)
+    // --- 重复请求取消结束 ---
+
     const token = localStorage.getItem('token')
     if (token) {
       config.headers['token'] = token
@@ -28,6 +42,10 @@ service.interceptors.request.use(
 // 响应拦截器：统一处理后端状态码
 service.interceptors.response.use(
   response => {
+    // 请求完成，从待处理列表中移除
+    const key = `${response.config.method}:${response.config.url}`
+    pendingMap.delete(key)
+
     const { data, config } = response
     // 兼容后端返回字符串或数字类型的 code
     const code = String(data.code)
@@ -41,6 +59,8 @@ service.interceptors.response.use(
       }
       if (!config.url?.includes('/login')) {
         ElMessage.error(data.msg || '登录过期，请重新登录')
+        // 同步清除 Pinia user store（配合 stores/user.js）
+        clearUserStore()
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
         window.location.href = '/auth/login'
@@ -55,7 +75,30 @@ service.interceptors.response.use(
     return Promise.reject(data)
   },
   error => {
+    // 被取消的请求（重复请求触发的 abort）静默丢弃
+    if (axios.isCancel(error)) {
+      return new Promise(() => { })
+    }
+    // 网络错误等异常情况也需清理 pendingMap
+    if (error.config) {
+      const key = `${error.config.method}:${error.config.url}`
+      pendingMap.delete(key)
+    }
     return Promise.reject(error)
   }
 )
+
+/**
+ * 清除 Pinia user store 中的用户状态
+ * 延迟导入避免循环依赖（request.js 是底层模块，不应在顶层直接 import store）
+ */
+function clearUserStore() {
+  import('@/stores/user').then(module => {
+    const store = module.useUserStore()
+    store.logout()
+  }).catch(() => {
+    // store 未注册时静默忽略，兼容非标准初始化场景
+  })
+}
+
 export default service

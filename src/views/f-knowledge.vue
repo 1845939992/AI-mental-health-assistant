@@ -160,6 +160,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { fileBaseUrl, knowledgeUrl } from '@/config/index.js'
 import { ElMessage, dayjs } from 'element-plus'
+import { Star } from '@element-plus/icons-vue'
 import { getKnowledgelist, getKnowledgeDetail } from '@/api/frontend'
 import { useRouter } from 'vue-router'
 

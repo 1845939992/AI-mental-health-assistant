@@ -8,10 +8,9 @@
           <p class="brand-subtitle">管理后台</p>
         </div>
       </div>
-      <el-menu-item @click="selectMenu(item.path)" v-for="item in router.options.routes[0]?.children ?? []"
-        :key="item.path" :index="item.path">
+      <el-menu-item @click="selectMenu(item.path)" v-for="item in menuRoutes" :key="item.path" :index="item.path">
         <el-icon>
-          <component :is="item.meta?.icon" />
+          <component :is="iconMap[item.meta?.icon]" />
         </el-icon>
         <span>{{ item.meta?.title }}</span>
       </el-menu-item>
@@ -22,12 +21,22 @@
 <script setup>
 /**
  * 后台侧边栏组件
- * 根据路由配置动态生成菜单项，支持折叠/展开（由 Pinia adminStore 控制）
+ * 根据路由配置动态生成菜单项，按当前用户角色过滤，支持折叠/展开（由 Pinia adminStore 控制）
  * activeMenu 从当前路由 path 的最后一段提取，与菜单 index 匹配实现高亮
  */
 import { useRouter, useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
-import { computed } from 'vue'
+import { computed, markRaw } from 'vue'
+// 手动导入侧边栏用到的图标（因为动态 :is 无法被自动导入插件静态分析）
+import { PieChart, ChatLineRound, Message, User } from '@element-plus/icons-vue'
+
+/** 侧边栏图标名 → 组件实例的映射表 */
+const iconMap = {
+  PieChart: markRaw(PieChart),
+  ChatLineRound: markRaw(ChatLineRound),
+  Message: markRaw(Message),
+  User: markRaw(User),
+}
 
 const router = useRouter()
 const route = useRoute()
@@ -38,6 +47,9 @@ const adminStore = useAdminStore()
 const isCollapse = computed(() => adminStore.isCollapse)
 // 从当前路由提取子路径，与菜单 index 匹配实现选中高亮
 const activeMenu = computed(() => route.path.split('/').pop())
+
+/** 后台所有子路由（无需角色过滤，路由守卫已在 beforeEach 中做权限隔离） */
+const menuRoutes = computed(() => router.options.routes[0]?.children ?? [])
 
 /** 点击菜单项：跳转到对应后台子页面 */
 const selectMenu = (path) => {

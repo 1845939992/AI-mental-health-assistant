@@ -31,7 +31,9 @@
  * 子组件通过 emit('search', formData) 将表单数据传递给父组件
  * isComp 映射表将简写的 'input'/'select' 转为 Element Plus 的 'el-input'/'el-select'
  */
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, markRaw } from 'vue'
+// 手动导入：因为 :is 动态组件使用字符串引用，auto-import 无法静态检测
+import { ElInput, ElSelect } from 'element-plus'
 
 const ruleFormRef = ref()
 const formData = reactive({})
@@ -64,11 +66,11 @@ const handleReset = (formEl) => {
   }
 }
 
-/** 组件名映射：将简写（input/select）映射为 Element Plus 组件全名 */
+/** 组件名映射：将简写（input/select）映射为 Element Plus 组件实例（非字符串） */
 const isComp = (comp) => {
   return {
-    input: 'el-input',
-    select: 'el-select',
+    input: markRaw(ElInput),
+    select: markRaw(ElSelect),
   }[comp] ?? comp
 }
 </script>

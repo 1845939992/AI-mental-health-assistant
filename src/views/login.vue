@@ -35,14 +35,16 @@
  * 支持用户名/邮箱登录，成功后按 userType 分流：
  *   userType=1 → 前台首页 /home
  *   userType=2 → 后台看板 /back/dashboard
- * JWT token 和 userInfo 存入 localStorage，由 Axios 拦截器自动携带
+ * 用户信息通过 userStore 集中管理，不再直接操作 localStorage
  */
 import { ArrowLeft, Back } from '@element-plus/icons-vue'
 import { login } from '@/api/asmin'
 import { ElMessage } from 'element-plus'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 const router = useRouter()
+const userStore = useUserStore()
 const formData = reactive({
   username: '',
   password: ''
@@ -69,7 +71,7 @@ const handleBackHome = () => {
 
 /**
  * 登录提交：
- * 1. 表单校验 → 2. 调用 login API → 3. 存储 token + userInfo 到 localStorage
+ * 1. 表单校验 → 2. 调用 login API → 3. 通过 userStore 集中存储 token + userInfo
  * → 4. 按 userType 分流路由（userType=2 管理端，否则前台首页）
  */
 const submitForm = async () => {
@@ -81,8 +83,8 @@ const submitForm = async () => {
           return console.error('登录失败')
         }
         else {
-          localStorage.setItem('token', data.token)
-          localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
+          // 通过 userStore 集中管理登录态（不再直接操作 localStorage）
+          userStore.setLoginData(data)
           // 根据用户角色决定跳转的路径
           if (data.userInfo.userType === 2) {
             router.push('/back')

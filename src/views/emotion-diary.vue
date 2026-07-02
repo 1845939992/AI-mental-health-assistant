@@ -189,8 +189,7 @@ $content-max-width: 1150px;
     max-width: $content-max-width;
     margin: -34px auto 0;
     box-sizing: border-box;
-    will-change: transform;
-    /* 浮动动画 GPU 合成层提示 */
+    will-change: transform; /* 浮动动画 GPU 合成层提示 */
     /* 粉色强调的流动渐变（与知识库的紫色强调形成差异） */
     background: linear-gradient(135deg,
         #a78bfa 0%,
@@ -640,7 +639,6 @@ $content-max-width: 1150px;
 
 /* 头部浮动：使用 transform(GPU 合成层)替代 top(Layout)，零重排 */
 @keyframes header-float {
-
   0%,
   100% {
     transform: translateY(0);

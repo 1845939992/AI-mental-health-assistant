@@ -13,7 +13,7 @@
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <el-icon>
-              <timer />
+              <Timer />
             </el-icon>
             <span style="margin-left: 10px">{{ scope.row.title }}</span>
           </div>
@@ -73,6 +73,7 @@ import TableSearch from '@/components/TableSearch.vue'
 import { onMounted, ref, reactive } from 'vue'
 import ArticleDialog from '@/components/articleDialog.vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { Timer, Coin } from '@element-plus/icons-vue'
 
 const formItem = [{
   label: '文章标题', prop: 'title', comp: 'input', placeholder: '请输入文章标题',

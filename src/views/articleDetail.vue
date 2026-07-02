@@ -117,6 +117,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getKnowledgeDetail } from '@/api/frontend'
 import { fileBaseUrl } from '@/config/index.js' // 后端文件服务基础 URL，用于拼接封面图地址
 import { dayjs } from 'element-plus'
+import { Back, Reading, User, Calendar, View } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()

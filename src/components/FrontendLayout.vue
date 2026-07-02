@@ -39,27 +39,26 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { logout } from '@/api/asmin'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const logoUrl = ref(new URL('../assets/logo.png', import.meta.url).href)
-const isLoggedIn = ref(false)
+// 登录态从 userStore 派生，响应式自动同步
+const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 const handleLogout = () => {
   logout()
     .then(() => {
-      localStorage.removeItem('token')
-      localStorage.removeItem('userInfo')
+      // 通过 userStore 统一清除登录态
+      userStore.logout()
       router.push('/auth/login')
     })
 }
-
-onMounted(() => {
-  isLoggedIn.value = localStorage.getItem('token') !== null
-})
 
 </script>
 

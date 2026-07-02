@@ -215,12 +215,15 @@
  *   3. 每次 AI 回复完成后拉取情绪分析，更新情绪花园
  *   4. 点击会话列表可切换并回放历史消息
  */
-import { ChatRound, DeleteFilled, Plus, Promotion } from '@element-plus/icons-vue'
+import { ChatRound, DeleteFilled, Plus, Promotion, Clock } from '@element-plus/icons-vue'
 import { ref, onMounted, reactive, watch, nextTick, onUnmounted } from 'vue'
 import { startSession, getSessionslist, deleteSession, getSessionMessages, getSessionEmotion } from '@/api/frontend'
 import { ElMessage } from 'element-plus'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const iconUrl = new URL('@/assets/images/robot-fill.png', import.meta.url).href //AI助手图标
 const iconUrl1 = new URL('@/assets/images/like.png', import.meta.url).href //爱心图标
@@ -523,14 +526,15 @@ const startAIResponse = (sessionId, message) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Token': localStorage.getItem('token'),
+      'Token': userStore.token,
       'Accept': 'text/event-stream'
     },
     body: JSON.stringify({
       sessionId: sessionId,
       userMessage: message
     }),
-    signal: ctrl.signal, //添加取消信号
+    signal: ctrl.signal, //添加取消信号，一旦外部调用ctrl.abort()，signal状态变为aborted
+    //库内部的fetch调用就会抛出AbortError并中断连接。
     //连接成功后，收到服务器第一个响应头时触发回调函数
     onopen: (response) => {
       if (response.headers.get('Content-Type') !== 'text/event-stream') {
@@ -553,7 +557,7 @@ const startAIResponse = (sessionId, message) => {
         getEmotionData(currentSession.value.sessionId)
         return
       }
-      const payload = JSON.parse(raw)
+      const payload = JSON.parse(raw) //解析服务器推送的JSON字符串为对象格式
       const ok = String(payload.code) === '200'
       if (ok && payload.data && payload.data.content) {
         aiMessage.content += payload.data.content

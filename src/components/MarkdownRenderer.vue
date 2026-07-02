@@ -66,7 +66,15 @@ const renderedContent = computed(() => {
 
   // 清理多余的br标签
   html = html.replace(/<br><br>/g, '<br>')
-
+    
+  // 流式渲染兼容：清理末尾未闭合的 Markdown 语法
+  // 避免 SSE 逐字推送时裸漏 **、```、[ 等残留标记
+  html = html.replace(/(\*\*[^*]*)$/, '')           // 未闭合粗体
+  html = html.replace(/(\*[^*]*)$/, '')             // 未闭合斜体（注意：先处理粗体再处理斜体，避免误匹配）
+  html = html.replace(/(```[\s\S]*)$/, '')          // 未闭合代码块
+  html = html.replace(/($$[^$$]*)$/, '')            // 未闭合链接文本
+  html = html.replace(/(\([^)]*)$/, '')             // 未闭合链接 URL
+  
   return html
 })
 </script>
