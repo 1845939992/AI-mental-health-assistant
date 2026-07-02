@@ -4,7 +4,11 @@
 
 **AI-powered mental health companion — intelligent emotional support, anytime, anywhere.**
 
-![Vue](https://img.shields.io/badge/Vue-3.5-brightgreen?logo=vuedotjs) ![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite) ![Element Plus](https://img.shields.io/badge/Element--Plus-2.13-409EFF?logo=element) ![Pinia](https://img.shields.io/badge/Pinia-3.0-ffd859) ![License](https://img.shields.io/badge/license-MIT-blue)
+![Vue](https://img.shields.io/badge/Vue-3.5-brightgreen?logo=vuedotjs)
+![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite)
+![Element Plus](https://img.shields.io/badge/Element--Plus-2.13-409EFF?logo=element)
+![Pinia](https://img.shields.io/badge/Pinia-3.0-ffd859)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ***
 
@@ -186,6 +190,7 @@ Hero 区左右分栏布局，Logo 弹入动画 + 文字渐入，标题`化孤独
 - 密码：123456
 
 管理端登录账号：
+
 - 账号：admin
 - 密码：123456
 
