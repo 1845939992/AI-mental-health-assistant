@@ -11,7 +11,7 @@
 
 ---
 
-<h2 id="优化-1">优化 1：Element Plus 组件与图标按需引入</h2>
+## 优化 1：Element Plus 组件与图标按需引入
 
 ### 优化目标与背景
 
@@ -93,7 +93,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 ---
 
-<h2 id="优化-2">优化 2：重复请求取消</h2>
+## 优化 2：重复请求取消
 
 ### 优化目标与背景
 
@@ -159,7 +159,7 @@ POST:/api/knowledge/article/save → 另一个 key
 
 ---
 
-<h2 id="优化-3">优化 3：Markdown SSE 流式渲染兼容（未闭合语法清理）</h2>
+## 优化 3：Markdown SSE 流式渲染兼容（未闭合语法清理）
 
 ### 优化目标与背景
 
@@ -203,7 +203,7 @@ html = html.replace(/(\([^)]*)$/, '')     // 未闭合链接 URL (url
 
 ---
 
-<h2 id="优化-4">优化 4：登录态集中管理（userStore）</h2>
+## 优化 4：登录态集中管理（userStore）
 
 ### 优化目标与背景
 
