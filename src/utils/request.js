@@ -11,15 +11,22 @@ const service = axios.create({
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 5000
 })
 
-// 存储当前进行中的请求，key 为 "method:url"
+// 存储当前进行中的请求，key 为 "方法:路径:参数"（含 query/body 以区分不同参数的请求）
 // 用于防止用户重复点击导致同一个接口短时间内发出多次请求
-const pendingMap = new Map()   //创建一个 Map 实例，用于存储当前进行中的请求
+const pendingMap = new Map()
+
+/** 生成请求唯一标识：method + path + 序列化参数 */
+function getRequestKey(config) {
+  const params = config.params ? JSON.stringify(config.params) : ''
+  const data = config.data ? JSON.stringify(config.data) : ''
+  return `${config.method}:${config.url}:${params}:${data}`
+}
 
 // 请求拦截器：取消重复请求 + 自动注入本地存储的 token
 service.interceptors.request.use(
   config => {
-    // --- 重复请求取消：同一个接口有旧请求在进行则取消旧的 ---
-    const key = `${config.method}:${config.url}`
+    // --- 重复请求取消：同一个接口+相同参数有旧请求在进行则取消旧的 ---
+    const key = getRequestKey(config)
     if (pendingMap.has(key)) {   //判断 key 是否存在，返回 boolean
       pendingMap.get(key).abort()  //.abort()调用 AbortController的方法，向关联的 HTTP 请求发出"取消"信号。
     }
@@ -43,7 +50,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     // 请求完成，从待处理列表中移除
-    const key = `${response.config.method}:${response.config.url}`
+    const key = getRequestKey(response.config)
     pendingMap.delete(key)
 
     const { data, config } = response
@@ -81,7 +88,7 @@ service.interceptors.response.use(
     }
     // 网络错误等异常情况也需清理 pendingMap
     if (error.config) {
-      const key = `${error.config.method}:${error.config.url}`
+      const key = getRequestKey(error.config)
       pendingMap.delete(key)
     }
     return Promise.reject(error)
